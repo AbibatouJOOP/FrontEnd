@@ -1,0 +1,87 @@
+<div class="panier-container">
+      <div class="panier-header">
+        <h1><i class="fas fa-shopping-cart"></i> Mon Panier</h1>
+        <p>Gérez vos articles avant de passer commande</p>
+      </div>
+
+      <!-- Panier vide -->
+      <div class="panier-vide-section" *ngIf="panierService.getProduits().length === 0">
+        <div class="panier-vide-card">
+          <i class="fas fa-shopping-cart empty-cart-icon"></i>
+          <h2>Votre panier est vide</h2>
+          <p>Découvrez nos délicieux produits artisanaux</p>
+          <button class="btn-catalogue" (click)="allerAuCatalogue()">
+            <i class="fas fa-bread-slice"></i> Voir le Catalogue
+          </button>
+        </div>
+      </div>
+
+      <!-- Panier avec produits -->
+      <div class="panier-plein" *ngIf="panierService.getProduits().length > 0">
+        <div class="panier-items">
+          <div class="item-card" *ngFor="let item of panierService.getProduits()">
+            <div class="item-image">
+              <img [src]="'http://127.0.0.1:8000/storage/' + item.produit.image" 
+                   [alt]="item.produit.nom"
+                   onerror="this.src='assets/images/placeholder.jpg'">
+            </div>
+            
+            <div class="item-details">
+              <h3>{{ item.produit.nom }}</h3>
+              <p class="item-description">{{ item.produit.description }}</p>
+              <div class="item-prix">{{ item.produit.prix}} cfca</div>
+            </div>
+            
+            <div class="item-quantity">
+              <button class="qty-btn" (click)="diminuerQuantite(item.produit.id)">
+                <i class="fas fa-minus">-</i>
+              </button>
+              <span class="qty-value">{{ item.quantite }}</span>
+              <button class="qty-btn" (click)="augmenterQuantite(item.produit.id)">
+                <i class="fas fa-plus">+</i>
+              </button>
+            </div>
+            
+            <div class="item-total">
+              <div class="sous-total">{{ (item.produit.prix * item.quantite) | number:'1.2-2' }}fcfa</div>
+              <button class="btn-remove" (click)="retirerProduit(item.produit.id)">
+                <i class="fas fa-trash">X</i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Résumé du panier -->
+        <div class="panier-summary">
+          <div class="summary-card">
+            <h3>Récapitulatif</h3>
+            
+            <div class="summary-line">
+              <span>Articles ({{ getTotalArticles() }})</span>
+              <span>{{ panierService.getTotal()}} fcfa</span>
+            </div>
+            
+            <div class="summary-line">
+              <span>Livraison</span>
+              <span>Gratuite</span>
+            </div>
+            
+            <div class="summary-divider"></div>
+            
+            <div class="summary-total">
+              <span>Total</span>
+              <span class="total-price">{{ panierService.getTotal()}} cfca</span>
+            </div>
+            
+            <div class="summary-actions">
+              <button class="btn-vider" (click)="viderPanier()">
+                <i class="fas fa-trash"></i> Vider le Panier
+              </button>
+              <button class="btn-commander" (click)="passerCommande()">
+                <i class="fas fa-check"></i> Passer Commande
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

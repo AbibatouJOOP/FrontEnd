@@ -1,0 +1,77 @@
+<div class="catalogue-container">
+      <div class="catalogue-header">
+        <h1>Notre Catalogue</h1>
+        <p>Découvrez nos délicieux produits artisanaux</p>
+      </div>
+
+      <div class="produits-grid" *ngIf="produits.length > 0">
+        <div class="produit-card" *ngFor="let produit of produits">
+          <div class="produit-image">
+            <img [src]="'http://127.0.0.1:8000/storage/' + produit.image" 
+                 [alt]="produit.nom" 
+                 onerror="this.src='assets/images/placeholder.jpg'">
+            <div class="produit-overlay" *ngIf="panierService.estDansPanier(produit.id)">
+              <span class="dans-panier">Dans le panier</span>
+            </div>
+          </div>
+          
+          <div class="produit-content">
+            <h3 class="produit-nom">{{ produit.nom }}</h3>
+            <p class="produit-description">{{ produit.description }}</p>
+            <div class="produit-prix">{{ produit.prix }} fcfa</div>
+            
+            <div class="produit-actions">
+              <button class="btn-details" (click)="voirDetails(produit)">
+                <i class="fas fa-eye"></i> Voir détails
+              </button>
+              <button class="btn-panier" 
+                      (click)="ajouterAuPanier(produit)"
+                      [disabled]="panierService.estDansPanier(produit.id)">
+                <i class="fas fa-shopping-cart"></i> 
+                {{ panierService.estDansPanier(produit.id) ? 'Ajouté' : 'Ajouter' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="loading" *ngIf="loading">
+        <i class="fas fa-spinner fa-spin"></i> Chargement des produits...
+      </div>
+
+      <div class="no-products" *ngIf="!loading && produits.length === 0">
+        <i class="fas fa-bread-slice"></i>
+        <h3>Aucun produit disponible</h3>
+        <p>Revenez plus tard pour découvrir nos délicieux produits !</p>
+      </div>
+    </div>
+
+    <!-- Modal détails produit -->
+    <div class="modal-overlay" *ngIf="produitSelectionne" (click)="fermerDetails()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>{{ produitSelectionne.nom }}</h2>
+          <button class="close-modal" (click)="fermerDetails()">×</button>
+        </div>
+        <div class="modal-body">
+          <img [src]="'http://127.0.0.1:8000/storage/' + produitSelectionne.image" 
+               [alt]="produitSelectionne.nom"
+               class="modal-image">
+          <div class="modal-details">
+            <p class="description">{{ produitSelectionne.description }}</p>
+            <div class="prix-modal">{{ produitSelectionne.prix }} fcfa</div>
+            <div class="stock" *ngIf="produitSelectionne.stock">
+              Stock disponible: {{ produitSelectionne.stock }}
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-modal-panier" 
+                  (click)="ajouterAuPanier(produitSelectionne)"
+                  [disabled]="panierService.estDansPanier(produitSelectionne.id)">
+            <i class="fas fa-shopping-cart"></i> 
+            {{ panierService.estDansPanier(produitSelectionne.id) ? 'Déjà dans le panier' : 'Ajouter au panier' }}
+          </button>
+        </div>
+      </div>
+    </div>

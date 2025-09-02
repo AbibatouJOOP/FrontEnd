@@ -1,0 +1,135 @@
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="bi bi-box"></i>
+            {{ isEditMode ? 'Modifier le produit' : 'Ajouter un produit' }}
+          </h3>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <!-- Nom du produit -->
+            <div class="mb-3">
+              <label for="nom" class="form-label">Nom du produit *</label>
+              <input 
+                formControlName="nom" 
+                type="text" 
+                id="nom" 
+                class="form-control"
+                [class.is-invalid]="form.get('nom')?.invalid && form.get('nom')?.touched"
+                placeholder="Entrez le nom du produit">
+              <div class="invalid-feedback">
+                Le nom est requis (minimum 2 caractères).
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea 
+                formControlName="description" 
+                id="description" 
+                class="form-control" 
+                rows="3"
+                placeholder="Description du produit (optionnel)"></textarea>
+            </div>
+
+            <!-- Prix -->
+            <div class="mb-3">
+              <label for="prix" class="form-label">Prix (F Cfa) *</label>
+              <input 
+                formControlName="prix" 
+                type="number" 
+                step="0.01"
+                min="0"
+                id="prix" 
+                class="form-control"
+                [class.is-invalid]="form.get('prix')?.invalid && form.get('prix')?.touched"
+                placeholder="0">
+              <div class="invalid-feedback">
+                Le prix est requis et doit être positif.
+              </div>
+            </div>
+
+            <!-- Stock -->
+            <div class="mb-3">
+              <label for="stock" class="form-label">Stock *</label>
+              <input 
+                formControlName="stock" 
+                type="number" 
+                min="0"
+                id="stock" 
+                class="form-control"
+                [class.is-invalid]="form.get('stock')?.invalid && form.get('stock')?.touched"
+                placeholder="0">
+              <div class="invalid-feedback">
+                Le stock est requis et doit être positif.
+              </div>
+            </div>
+
+            <!-- Image -->
+            <div class="mb-3">
+                <label for="image" class="form-label">Image</label>
+
+               <!-- <div *ngIf="produit?.image" class="mb-2">
+                    <p>Image actuelle: {{ produit.image }}</p>
+                    <img [src]="'http://127.0.0.1:8000/storage/' + produit.image" 
+                        alt="Image actuelle" style="width:150px; height:auto;">
+                </div>
+                -->
+
+                <input 
+                    type="file" 
+                    id="image" 
+                    class="form-control"
+                    (change)="onFileSelected($event)" 
+                    accept="image/*">
+            </div>
+
+
+            <!-- Catégorie -->
+            <div class="mb-3">
+              <label for="categorie_id" class="form-label">Catégorie *</label>
+              <select 
+                formControlName="categorie_id" 
+                id="categorie_id" 
+                class="form-select"
+                [class.is-invalid]="form.get('categorie_id')?.invalid && form.get('categorie_id')?.touched">
+                <option value="">Sélectionnez une catégorie</option>
+                <option 
+                  *ngFor="let categorie of categories" 
+                  [value]="categorie.id">
+                  {{ categorie.nom }}
+                </option>
+              </select>
+              <div class="invalid-feedback">
+                Veuillez sélectionner une catégorie.
+              </div>
+            </div>
+
+            <!-- Boutons -->
+            <div class="d-flex justify-content-between">
+              <button 
+                type="button" 
+                class="btn btn-secondary"
+                routerLink="/admin/produit">
+                <i class="bi bi-arrow-left"></i> Retour
+              </button>
+              
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="form.invalid || isLoading">
+                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!isLoading" class="bi" [class.bi-plus-circle]="!isEditMode" [class.bi-check-circle]="isEditMode"></i>
+                {{ isEditMode ? 'Modifier' : 'Ajouter' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

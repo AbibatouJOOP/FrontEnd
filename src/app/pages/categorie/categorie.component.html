@@ -1,0 +1,30 @@
+<div class="container">
+    <h1>Liste des catégories</h1>
+
+    <button class="btn btn-success" routerLink="/admin/addCategorie">Ajouter</button>
+    <table class="table">
+        <thead>
+            <tr>
+            <td>ID</td>
+            <td>Nom</td>
+            <td>Description</td>
+            <td>Actions</td>
+        </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let categorie of categories">
+            <td>{{categorie.id}}</td>
+            <td>{{categorie.nom}}</td>
+            <td>{{categorie.description}}</td>
+            <td>
+                <button class="btn btn-primary" routerLink="/admin/updateCategorie/{{categorie.id}}">Modifier</button>
+            </td>
+            <td>
+                <button class="btn btn-danger" (click)="deleteCategorie(categorie.id)">Supprimer</button>
+            </td>
+            
+        </tr>
+        </tbody>
+    </table>
+
+</div>

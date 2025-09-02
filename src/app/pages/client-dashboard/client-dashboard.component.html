@@ -1,0 +1,34 @@
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-brand">
+    <h2>Boulangerie Artisanale</h2>
+  </div>
+  
+  <div class="navbar-menu">
+    <a routerLink="catalogue" routerLinkActive="active" class="nav-link">
+      <i class="fas fa-bread-slice"></i> Catalogue
+    </a>
+    <a routerLink="commande" routerLinkActive="active" class="nav-link">
+      <i class="fas fa-shopping-bag"></i> Mes Commandes
+    </a>
+    
+    <!-- Icône du panier - Navigation vers la page panier -->
+    <a routerLink="panier" routerLinkActive="active" class="panier-container nav-link">
+      <i class="fas fa-shopping-cart panier-icon"></i>
+      <span class="panier-badge">
+        {{ nombreProduitsPanier }}
+      </span>
+      <span class="panier-text">Panier</span>
+    </a>
+    
+    <button class="logout-btn" (click)="logout()">
+      <i class="fas fa-sign-out-alt"></i> Déconnexion
+    </button>
+  </div>
+</nav>
+
+
+<!-- Contenu principal -->
+<div class="main-content">
+  <router-outlet></router-outlet>
+</div>

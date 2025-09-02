@@ -1,0 +1,414 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation de Commande</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .promo-badge {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .prix-original {
+            text-decoration: line-through;
+            color: #95a5a6;
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
+        
+        .prix-promo {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .economies-badge {
+            background: #27ae60;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        .zone-livraison-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+        
+        .frais-personnalises {
+            margin-top: 10px;
+        }
+        
+        .total-breakdown {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+        }
+        
+        .total-line.final {
+            border-top: 2px solid #2c3e50;
+            padding-top: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #27ae60;
+        }
+        
+        .produit-promo-item {
+            background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .info-readonly {
+            background: #ecf0f1;
+            color: #2c3e50;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="panier-container">
+        <!-- En-tête -->
+        <div class="panier-header">
+            <h1>
+                <i class="fas fa-clipboard-check"></i>
+                Validation de Commande
+            </h1>
+            <p>Finalisez votre commande en quelques étapes</p>
+        </div>
+
+        <!-- Indicateur d'étapes -->
+        <div class="etapes-container">
+            <div class="etapes-indicateur">
+                <div class="etape" [class.active]="etapeActuelle === 1" [class.completed]="etapeActuelle > 1">
+                    <div class="etape-numero">1</div>
+                    <div class="etape-titre">Livraison</div>
+                </div>
+                <div class="etape-ligne"></div>
+                <div class="etape" [class.active]="etapeActuelle === 2" [class.completed]="etapeActuelle > 2">
+                    <div class="etape-numero">2</div>
+                    <div class="etape-titre">Paiement</div>
+                </div>
+                <div class="etape-ligne"></div>
+                <div class="etape" [class.active]="etapeActuelle === 3" [class.completed]="etapeActuelle > 3">
+                    <div class="etape-numero">3</div>
+                    <div class="etape-titre">Confirmation</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message d'erreur -->
+        <div class="error-message" *ngIf="error">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ error }}
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="validation-content">
+            <!-- Formulaire -->
+            <div class="formulaire-section">
+                <!-- Étape 1: Informations de livraison -->
+                <div *ngIf="etapeActuelle === 1">
+                    <h2 class="section-titre">
+                        <i class="fas fa-truck"></i>
+                        Informations de livraison
+                    </h2>
+
+                    <div class="form-group">
+                        <label for="nomComplet">Nom complet *</label>
+                        <input type="text" 
+                               id="nomComplet" 
+                               [(ngModel)]="infosLivraison.nomComplet" 
+                               class="info-readonly"
+                               readonly
+                               required>
+                        <small style="color: #7f8c8d;">Ce nom provient de votre profil utilisateur</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telephone">Téléphone *</label>
+                        <input type="tel" id="telephone" [(ngModel)]="infosLivraison.telephone" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="adresse">Adresse complète *</label>
+                        <input type="text" id="adresse" [(ngModel)]="infosLivraison.adresse" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ville">Ville *</label>
+                        <input type="text" id="ville" [(ngModel)]="infosLivraison.ville" required>
+                    </div>
+
+                    <!-- Zone de livraison et frais -->
+                    <div class="form-group">
+                        <label>Zone de livraison et frais</label>
+                        <div class="zone-livraison-grid">
+                            <select (change)="onZoneChange($event)">
+                                <option value="">Sélectionnez une zone</option>
+                                <option *ngFor="let zone of zonesLivraison" [value]="zone.nom">
+                                    {{ zone.nom }} - {{ zone.tarif > 0 ? (zone.tarif | number:'1.0-0') + ' FCFA' : 'Tarif personnalisé' }}
+                                </option>
+                            </select>
+                            
+                            <div class="frais-personnalises">
+                                <label for="fraisLivraison">Frais (FCFA)</label>
+                                <input type="number" 
+                                       id="fraisLivraison"
+                                       [(ngModel)]="infosLivraison.fraisLivraison"
+                                       (ngModelChange)="onFraisLivraisonChange($event)"
+                                       min="0"
+                                       step="500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="commentaires">Commentaires de livraison</label>
+                        <textarea id="commentaires" [(ngModel)]="infosLivraison.commentaires" 
+                                placeholder="Instructions spéciales pour la livraison..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Étape 2: Informations de paiement -->
+                <div *ngIf="etapeActuelle === 2">
+                    <h2 class="section-titre">
+                        <i class="fas fa-credit-card"></i>
+                        Mode de paiement
+                    </h2>
+
+                    <div class="paiement-options">
+                        <div class="paiement-option" 
+                             [class.selected]="infosPaiement.modePaiement === 'livraison'"
+                             (click)="infosPaiement.modePaiement = 'livraison'">
+                            <div class="paiement-option-header">
+                                <input type="radio" name="modePaiement" value="livraison" 
+                                       [(ngModel)]="infosPaiement.modePaiement">
+                                <i class="fas fa-money-bill-wave" style="color: #27ae60; font-size: 1.5rem;"></i>
+                                <div class="paiement-option-titre">Paiement à la livraison</div>
+                            </div>
+                            <div class="paiement-option-description">
+                                Payez en espèces lors de la réception de votre commande
+                            </div>
+                        </div>
+
+                        <div class="paiement-option" 
+                             [class.selected]="infosPaiement.modePaiement === 'enligne'"
+                             (click)="infosPaiement.modePaiement = 'enligne'">
+                            <div class="paiement-option-header">
+                                <input type="radio" name="modePaiement" value="enligne" 
+                                       [(ngModel)]="infosPaiement.modePaiement">
+                                <i class="fas fa-mobile-alt" style="color: #3498db; font-size: 1.5rem;"></i>
+                                <div class="paiement-option-titre">Paiement Mobile Money</div>
+                            </div>
+                            <div class="paiement-option-description">
+                                Payez directement par Orange Money, MTN Money ou Moov Money
+                            </div>
+
+                            <div *ngIf="infosPaiement.modePaiement === 'enligne'">
+                                <div class="form-group" style="margin-top: 15px;">
+                                    <label for="numeroTelephone">Numéro de téléphone *</label>
+                                    <input type="tel" id="numeroTelephone" 
+                                           [(ngModel)]="infosPaiement.numeroTelephone" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Choisissez votre opérateur</label>
+                                    <div class="operateurs-grid">
+                                        <div class="operateur-option" 
+                                             [class.selected]="infosPaiement.operateur === 'orange'"
+                                             (click)="infosPaiement.operateur = 'orange'">
+                                            <div style="color: #ff6600; font-weight: bold;">Orange Money</div>
+                                        </div>
+                                        <div class="operateur-option" 
+                                             [class.selected]="infosPaiement.operateur === 'mtn'"
+                                             (click)="infosPaiement.operateur = 'mtn'">
+                                            <div style="color: #ffcc00; font-weight: bold;">MTN Money</div>
+                                        </div>
+                                        <div class="operateur-option" 
+                                             [class.selected]="infosPaiement.operateur === 'moov'"
+                                             (click)="infosPaiement.operateur = 'moov'">
+                                            <div style="color: #0066cc; font-weight: bold;">Moov Money</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Étape 3: Confirmation -->
+                <div *ngIf="etapeActuelle === 3">
+                    <div class="confirmation-section">
+                        <div class="confirmation-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h2 class="confirmation-titre">Confirmation de commande</h2>
+                        <p>Vérifiez vos informations avant de finaliser</p>
+
+                        <div class="confirmation-details">
+                            <h4><i class="fas fa-truck"></i> Livraison</h4>
+                            <p><strong>{{ infosLivraison.nomComplet }}</strong></p>
+                            <p>{{ infosLivraison.adresse }}, {{ infosLivraison.ville }}</p>
+                            <p>{{ infosLivraison.telephone }}</p>
+                            <p *ngIf="infosLivraison.fraisLivraison > 0" class="frais-livraison">
+                                <strong>Frais de livraison:</strong> {{ infosLivraison.fraisLivraison | number:'1.0-0' }} FCFA
+                            </p>
+                        </div>
+
+                        <div class="confirmation-details">
+                            <h4><i class="fas fa-credit-card"></i> Paiement</h4>
+                            <p *ngIf="infosPaiement.modePaiement === 'livraison'">
+                                <strong>Paiement à la livraison</strong> (Espèces)
+                            </p>
+                            <p *ngIf="infosPaiement.modePaiement === 'enligne'">
+                                <strong>{{ infosPaiement.operateur | titlecase }} Money</strong><br>
+                                {{ infosPaiement.numeroTelephone }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons de navigation -->
+                <div class="actions-container">
+                    <button class="btn btn-retour" 
+                            *ngIf="etapeActuelle > 1"
+                            (click)="passerEtapePrecedente()">
+                        <i class="fas fa-arrow-left"></i>
+                        Retour
+                    </button>
+                    
+                    <button class="btn btn-retour" 
+                            *ngIf="etapeActuelle === 1"
+                            (click)="retournerPanier()">
+                        <i class="fas fa-shopping-cart"></i>
+                        Retour au panier
+                    </button>
+
+                    <button class="btn btn-suivant" 
+                            *ngIf="etapeActuelle < 3"
+                            (click)="passerEtapeSuivante()">
+                        Suivant
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                    <button class="btn btn-finaliser" 
+                            *ngIf="etapeActuelle === 3"
+                            [disabled]="loading"
+                            (click)="finaliserCommande()">
+                        <div class="loading-spinner" *ngIf="loading"></div>
+                        <i class="fas fa-check" *ngIf="!loading"></i>
+                        {{ loading ? 'Finalisation...' : 'Finaliser la commande' }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Résumé de commande amélioré -->
+            <div class="resume-commande">
+                <h3 class="resume-titre">
+                    <i class="fas fa-receipt"></i>
+                    Récapitulatif
+                </h3>
+
+                <!-- Articles avec promotions -->
+                <div class="produits-liste">
+                    <div class="produit-resume" 
+                         *ngFor="let item of panierService.getProduits()"
+                         [class.produit-promo-item]="aPromotion(item)">
+                        <div>
+                            <div class="produit-nom">
+                                {{ item.produit.nom }}
+                                <span class="promo-badge" *ngIf="aPromotion(item)">
+                                    -{{ getPourcentageReduction(item) }}%
+                                </span>
+                            </div>
+                            <div class="produit-quantite">
+                                Quantité: {{ item.quantite }} × 
+                                <span *ngIf="aPromotion(item)" class="prix-original">{{ item.produit.prix | number:'1.2-2' }} FCFA</span>
+                                <span [class.prix-promo]="aPromotion(item)">{{ calculerPrixAvecPromo(item) | number:'1.2-2' }} FCFA</span>
+                            </div>
+                        </div>
+                        <div class="produit-prix">
+                            {{ (calculerPrixAvecPromo(item) * item.quantite) | number:'1.2-2' }} FCFA
+                            <div *ngIf="aPromotion(item)" class="economies-badge">
+                                Économie: {{ ((item.produit.prix - calculerPrixAvecPromo(item)) * item.quantite) | number:'1.2-2' }} FCFA
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Récapitulatif détaillé -->
+                <div class="total-breakdown">
+                    <div class="total-line">
+                        <span>Frais de livraison</span>
+                        <span>{{ infosLivraison.fraisLivraison | number:'1.2-2' }} FCFA</span>
+                    </div>
+
+                    <div class="total-line final">
+                        <span>Total à payer</span>
+                        <span>{{ getTotalGeneral() | number:'1.2-2' }} FCFA</span>
+                    </div>
+                </div>
+
+                <!-- Informations supplémentaires -->
+                <div class="info-supplementaires" *ngIf="etapeActuelle > 1">
+                    <div class="info-section" *ngIf="infosLivraison.nomComplet">
+                        <h4><i class="fas fa-truck"></i> Livraison</h4>
+                        <p class="info-text">{{ infosLivraison.nomComplet }}</p>
+                        <p class="info-text">{{ infosLivraison.ville }}</p>
+                        <p class="info-text" *ngIf="infosLivraison.fraisLivraison > 0">
+                            Frais: {{ infosLivraison.fraisLivraison | number:'1.0-0' }} FCFA
+                        </p>
+                    </div>
+
+                    <div class="info-section" *ngIf="etapeActuelle > 2">
+                        <h4><i class="fas fa-credit-card"></i> Paiement</h4>
+                        <p class="info-text" *ngIf="infosPaiement.modePaiement === 'livraison'">
+                            À la livraison (Espèces)
+                        </p>
+                        <p class="info-text" *ngIf="infosPaiement.modePaiement === 'enligne'">
+                            {{ infosPaiement.operateur | titlecase }} Money
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Résumé des économies -->
+                <div class="info-section" *ngIf="getEconomiesTotal() > 0">
+                    <div style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; padding: 15px; border-radius: 8px; text-align: center; margin-top: 15px;">
+                        <h4 style="margin: 0; color: white;">
+                            <i class="fas fa-gift"></i> Félicitations !
+                        </h4>
+                        <p style="margin: 10px 0 0 0; font-size: 1.1rem; font-weight: bold;">
+                            Vous économisez {{ getEconomiesTotal() | number:'1.2-2' }} FCFA
+                        </p>
+                        <p style="margin: 5px 0 0 0; font-size: 0.9rem; opacity: 0.9;">
+                            grâce aux promotions en cours
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

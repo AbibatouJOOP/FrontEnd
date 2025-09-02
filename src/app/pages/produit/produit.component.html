@@ -1,0 +1,92 @@
+<div class="container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Liste des produits</h1>
+    <button 
+      *ngIf="canAddProduct()" 
+      class="btn btn-success" 
+      routerLink="/admin/addProduit">
+      <i class="bi bi-plus-circle"></i> Ajouter un produit
+    </button>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+    <button *ngIf="error.includes('Session')" 
+            class="btn btn-sm btn-outline-danger ms-2" 
+            (click)="router.navigate(['/login'])">
+      Se reconnecter
+    </button>
+  </div>
+
+  <!-- Indicateur de chargement -->
+  <div *ngIf="isLoading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p>Chargement des produits...</p>
+  </div>
+
+  <!-- Tableau des produits -->
+  <div *ngIf="!isLoading && !error">
+    <div *ngIf="produits.length === 0" class="alert alert-info">
+      <i class="bi bi-info-circle"></i> Aucun produit trouvé.
+    </div>
+
+    <table *ngIf="produits.length > 0" class="table table-striped mt-3">
+      <thead class="table-dark">
+        <tr>
+          <th>Image</th>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Stock</th>
+          <th>Prix</th>
+          <th>Catégorie</th>
+          <th *ngIf="canManageProducts()">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let produit of produits">
+          <td>
+            <img [src]="'http://127.0.0.1:8000/storage/' + produit.image" 
+                alt="Image produit" 
+                style="width: 150px; height: auto;"
+                >
+          </td>
+          <td class="text-center">{{ produit.id }}</td>
+          <td class="text-center">{{ produit.nom }}</td>
+          <td class="text-center">{{ produit.description }}</td>
+          <td class="text-center">{{ produit.stock }}</td>
+          <td class="text-center">{{ produit.prix  }}</td>
+          <td class="text-center">
+            <span class="badge bg-secondary">
+              {{ produit.categorie?.nom || 'Non défini' }}
+            </span>
+          </td>
+          <td *ngIf="canManageProducts()">
+            <div class="btn-group" role="group">
+              <button 
+                class="btn btn-primary btn-sm" 
+                [routerLink]="['/admin/updateProduit', produit.id]"
+                title="Modifier">
+                Modifier
+              </button>
+              <button 
+                class="btn btn-danger btn-sm" 
+                (click)="deleteProduit(produit.id)"
+                title="Supprimer">
+                Supprimer
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Informations utilisateur pour debug -->
+  <div *ngIf="currentUser" class="mt-4 small text-muted">
+    <strong>Debug:</strong> Connecté en tant que {{ currentUser.nomComplet }} ({{ currentUser.role }})
+  </div>
+</div>

@@ -1,0 +1,17 @@
+<form action="" [formGroup]="categorieForm" (ngSubmit)="onSubmit()">
+    
+    <label for="nom" >Nom</label>
+    <input type="text" id="nom" name="nom" class="form-control" formControlName="nom">
+    <div *ngIf="f2['nom'].errors">
+        <span class="text-danger" *ngIf="submetted && f2['nom'].errors['required']">le nom est obligatoire</span>
+        <span class="text-danger" *ngIf="submetted && f2['nom'].errors['minlength']">Au minimum 3 caracteres</span>
+    </div>
+    
+    <label for="description" >Description</label>
+    <textarea name="description" id="description" class="form-control" formControlName="description"></textarea>
+    <div *ngIf="f2['description'].errors">
+        <span class="text-danger" *ngIf="submetted && f2['description'].errors['required']">la description est obligatoire</span>
+    </div>
+
+    <button class="btn btn-primary" type="submit" >{{this.id ? "Modifier" : "Enregistrer"}}</button>
+</form>

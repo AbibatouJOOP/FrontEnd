@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Promotions</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .promotions-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .promotions-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .promotions-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .promotions-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls-section {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 8px 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-primary, .btn-refresh {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover, .btn-refresh:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-bar {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .loading, .error {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            color: #667eea;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 10px;
+            margin: 20px 30px;
+        }
+
+        .promotions-table-container {
+            padding: 20px 30px;
+            overflow-x: auto;
+        }
+
+        .promotions-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .promotions-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .promotions-table td {
+            padding: 15px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: top;
+        }
+
+        .promotions-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .statut-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .statut-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .statut-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .statut-expired {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .statut-future {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .reduction-badge {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .produits-liste {
+            max-width: 200px;
+        }
+
+        .produit-tag {
+            display: inline-block;
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin: 2px;
+            color: #495057;
+        }
+
+        .actions-cell {
+            white-space: nowrap;
+        }
+
+        .action-btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 2px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-edit {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #138496;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .btn-toggle {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-toggle:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-toggle.inactive {
+            background: #6c757d;
+        }
+
+        .btn-duplicate {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-duplicate:hover {
+            background: #e0a800;
+            transform: translateY(-1px);
+        }
+
+        .btn-produits {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .btn-produits:hover {
+            background: #5a2d91;
+            transform: translateY(-1px);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .modal-header h3 {
+            color: #495057;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+
+        .modal-close:hover {
+            color: #dc3545;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            transform: scale(1.2);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .produits-section {
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .produits-section h4 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .produits-selection {
+            max-height: 200px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .produit-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .produit-checkbox:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .produit-checkbox input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .produit-info {
+            flex: 1;
+        }
+
+        .produit-nom {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+
+        .produit-prix {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 30px;
+            color: #6c757d;
+        }
+
+        .empty-state i {
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .promotions-header h1 {
+                font-size: 2rem;
+            }
+
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filters {
+                justify-content: center;
+            }
+
+            .promotions-table {
+                font-size: 0.9rem;
+            }
+
+            .promotions-table th,
+            .promotions-table td {
+                padding: 10px 8px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .produits-selection {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="promotions-container">
+        <div class="promotions-header">
+            <h1>
+                <i class="fas fa-tags"></i>
+                Gestion des Promotions
+            </h1>
+            <p>Créez et gérez les promotions de votre boulangerie</p>
+        </div>
+
+        <!-- Contrôles et filtres -->
+        <div class="controls-section">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="searchTerm">Rechercher</label>
+                    <input type="text" id="searchTerm" [(ngModel)]="searchTerm" placeholder="Nom, description...">
+                </div>
+                <div class="filter-group">
+                    <label for="filterActif">Statut</label>
+                    <select id="filterActif" [(ngModel)]="filterActif">
+                        <option value="">Tous</option>
+                        <option value="active">Actives</option>
+                        <option value="inactive">Inactives</option>
+                        <option value="expired">Expirées</option>
+                        <option value="future">Futures</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" *ngIf="canEdit()" (click)="openForm()">
+                    <i class="fas fa-plus"></i>
+                    Nouvelle Promotion
+                </button>
+                <button class="btn-refresh" (click)="refresh()">
+                    <i class="fas fa-sync-alt"></i>
+                    Actualiser
+                </button>
+            </div>
+        </div>
+
+        <!-- Barre de statistiques simple -->
+        <div class="stats-bar">
+            <i class="fas fa-chart-bar"></i>
+            {{ promotionsFiltrees.length }} promotion(s) trouvée(s)
+        </div>
+
+        <!-- Messages d'erreur -->
+        <div class="error" *ngIf="error">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ error }}
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" *ngIf="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            Chargement des promotions...
+        </div>
+
+        <!-- État vide -->
+        <div class="empty-state" *ngIf="!loading && promotionsFiltrees.length === 0">
+            <i class="fas fa-tags fa-3x"></i>
+            <h3>Aucune promotion trouvée</h3>
+            <p>Créez votre première promotion pour attirer vos clients !</p>
+        </div>
+
+        <!-- Tableau des promotions -->
+        <div class="promotions-table-container" *ngIf="!loading && promotionsFiltrees.length > 0">
+            <table class="promotions-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>Réduction</th>
+                        <th>Période</th>
+                        <th>Statut</th>
+                        <th>Produits</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let promotion of promotionsPaginees">
+                        <!-- Nom et description -->
+                        <td>
+                            <div style="font-weight: 600; margin-bottom: 5px;">{{ promotion.nom }}</div>
+                            <div style="font-size: 0.9rem; color: #6c757d;">{{ promotion.description || 'Pas de description' }}</div>
+                        </td>
+
+                        <!-- Réduction -->
+                        <td>
+                            <span class="reduction-badge">-{{ promotion.reduction }}%</span>
+                        </td>
+
+                        <!-- Période -->
+                        <td>
+                            <div style="font-size: 0.9rem;">
+                                <div><strong>Début:</strong> {{ promotion.dateDebut | date:'dd/MM/yyyy' }}</div>
+                                <div><strong>Fin:</strong> {{ promotion.dateFin | date:'dd/MM/yyyy' }}</div>
+                            </div>
+                        </td>
+
+                        <!-- Statut -->
+                        <td>
+                            <span class="statut-badge" [class]="getStatutClass(promotion)">
+                                {{ getStatutText(promotion) }}
+                            </span>
+                        </td>
+
+                        <!-- Produits associés -->
+                        <td class="produits-liste">
+                            <div *ngIf="promotion.produits && promotion.produits.length > 0">
+                                <span *ngFor="let produit of promotion.produits" class="produit-tag">
+                                    {{ produit.nom }}
+                                    <button *ngIf="canEdit()" 
+                                            (click)="dissocierProduit(promotion.id, produit.id)"
+                                            style="background: none; border: none; color: #dc3545; margin-left: 5px; cursor: pointer;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </span>
+                            </div>
+                            <div *ngIf="!promotion.produits || promotion.produits.length === 0" 
+                                 style="color: #6c757d; font-style: italic;">
+                                Aucun produit
+                            </div>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="actions-cell">
+                            <button class="action-btn btn-produits" 
+                                    *ngIf="canEdit()"
+                                    (click)="openProduitModal(promotion.id)"
+                                    title="Gérer les produits">
+                                <i class="fas fa-box"></i>
+                                Produits
+                            </button>
+
+                            <button class="action-btn btn-toggle" 
+                                    *ngIf="canEdit()"
+                                    [class.inactive]="!promotion.actif"
+                                    (click)="togglePromotion(promotion)"
+                                    title="Activer/Désactiver">
+                                <i class="fas" [class.fa-toggle-on]="promotion.actif" [class.fa-toggle-off]="!promotion.actif"></i>
+                                {{ promotion.actif ? 'Désactiver' : 'Activer' }}
+                            </button>
+                            
+                            <button class="action-btn btn-edit" 
+                                    *ngIf="canEdit()"
+                                    (click)="openForm(promotion)"
+                                    title="Modifier">
+                                <i class="fas fa-edit"></i>
+                                Modifier
+                            </button>
+
+                            <button class="action-btn btn-duplicate"
+                                    *ngIf="canEdit()"
+                                    (click)="dupliquerPromotion(promotion)"
+                                    title="Dupliquer">
+                                <i class="fas fa-copy"></i>
+                                Dupliquer
+                            </button>
+                            
+                            <button class="action-btn btn-delete" 
+                                    *ngIf="canDelete()"
+                                    (click)="deletePromotion(promotion.id)"
+                                    title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                                Supprimer
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" *ngIf="totalPages > 1">
+            <button (click)="changerPage(currentPage - 1)" 
+                    [disabled]="currentPage <= 1">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <span>Page {{ currentPage }} sur {{ totalPages }}</span>
+            
+            <button (click)="changerPage(currentPage + 1)" 
+                    [disabled]="currentPage >= totalPages">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de formulaire de promotion -->
+    <div class="modal" *ngIf="showForm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>{{ editingPromotion ? 'Modifier la promotion' : 'Nouvelle promotion' }}</h3>
+                <button class="modal-close" (click)="closeForm()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form (ngSubmit)="savePromotion()">
+                <div class="form-group">
+                    <label for="nom">Nom de la promotion *</label>
+                    <input type="text" id="nom" [(ngModel)]="promotionForm.nom" name="nom" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" [(ngModel)]="promotionForm.description" name="description" 
+                              rows="3" placeholder="Décrivez votre promotion..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="reduction">Réduction (%) *</label>
+                    <input type="number" id="reduction" [(ngModel)]="promotionForm.reduction" name="reduction" 
+                           min="1" max="100" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dateDebut">Date de début *</label>
+                        <input type="date" id="dateDebut" [(ngModel)]="promotionForm.dateDebut" name="dateDebut" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dateFin">Date de fin *</label>
+                        <input type="date" id="dateFin" [(ngModel)]="promotionForm.dateFin" name="dateFin" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="actif" [(ngModel)]="promotionForm.actif" name="actif">
+                        <label for="actif">Promotion active</label>
+                    </div>
+                </div>
+
+                <!-- Section des produits dans le formulaire -->
+                <div class="produits-section">
+                    <h4>Produits concernés</h4>
+                    <div class="produits-selection" *ngIf="produits.length > 0">
+                        <div *ngFor="let produit of produits" class="produit-checkbox">
+                            <input type="checkbox" 
+                                [id]="'produit-' + produit.id"
+                                [value]="produit.id" 
+                                [checked]="selectedProduits.includes(produit.id)"
+                                (change)="onProduitChange($event, produit.id)">
+
+                            <label [for]="'produit-' + produit.id" class="produit-info">
+                                <div class="produit-nom">{{ produit.nom }}</div>
+                                <div class="produit-prix">{{ produit.prix | number:'1.0-0' }} FCFA</div>
+                            </label>
+                        </div>
+                    </div>
+                    <div *ngIf="produits.length === 0" style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">
+                        Aucun produit disponible
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" (click)="closeForm()">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn-primary" [disabled]="!isFormValid()">
+                        {{ editingPromotion ? 'Modifier' : 'Créer' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de gestion des produits (séparé) -->
+    <div class="modal" *ngIf="showProduitModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Associer des produits à la promotion</h3>
+                <button class="modal-close" (click)="closeProduitModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="produits-section">
+                <div class="produits-selection" *ngIf="produits.length > 0">
+                    <div *ngFor="let produit of produits" class="produit-checkbox">
+                        <input type="checkbox" 
+                            [id]="'modal-produit-' + produit.id"
+                            [value]="produit.id" 
+                            [checked]="selectedProduits.includes(produit.id)"
+                            (change)="onProduitChange($event, produit.id)">
+
+                        <label [for]="'modal-produit-' + produit.id" class="produit-info">
+                            <div class="produit-nom">{{ produit.nom }}</div>
+                            <div class="produit-prix">{{ produit.prix | number:'1.0-0' }} FCFA</div>
+                        </label>
+                    </div>
+                </div>
+                <div *ngIf="produits.length === 0" style="color: #6c757d; font-style: italic; text-align: center; padding: 20px;">
+                    Aucun produit disponible
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" (click)="closeProduitModal()">
+                    Annuler
+                </button>
+                <button type="button" class="btn-primary" (click)="associerProduits()" 
+                        [disabled]="selectedProduits.length === 0">
+                    <i class="fas fa-link"></i>
+                    Associer {{ selectedProduits.length }} produit(s)
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
