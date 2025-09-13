@@ -1,15 +1,49 @@
 <div class="catalogue-container">
+      <!-- Pendant le chargement -->
+      <div class="promo-message" *ngIf="loadingPromos">
+        <i class="fas fa-spinner fa-spin"></i> Chargement des promotions...
+      </div>
+
+      <!-- Si promos actives -->
+      <ng-container *ngIf="!loadingPromos && promotionsActives.length > 0">
+        <div class="promo-message" *ngFor="let promo of promotionsActives">
+          🎉 {{ promo.nom }} : {{ promo.description }}
+          <span class="promo-dates">
+            (Valable du {{ promo.dateDebut | date:'dd/MM/yyyy' }}
+            au {{ promo.dateFin | date:'dd/MM/yyyy' }})
+          </span>
+          <!-- Liste des produits liés -->
+          <div class="promo-produits" *ngIf="promo.produits && promo.produits.length > 0">
+            <strong>Produits concernés :</strong>
+            <ul>
+              <li *ngFor="let produit of promo.produits">
+                 {{ produit.nom }} - {{ produit.prix }} FCFA
+              </li>
+            </ul>
+          </div>  
+        </div>
+      </ng-container>
+
+      <!-- Si aucune promo active -->
+      <div class="promo-message" *ngIf="!loadingPromos && promotionsActives.length === 0">
+        😔 Aucune promotion en cours pour le moment.
+      </div>
+
+
+
       <div class="catalogue-header">
         <h1>Notre Catalogue</h1>
         <p>Découvrez nos délicieux produits artisanaux</p>
       </div>
+    
 
       <div class="produits-grid" *ngIf="produits.length > 0">
         <div class="produit-card" *ngFor="let produit of produits">
           <div class="produit-image">
             <img [src]="'http://127.0.0.1:8000/storage/' + produit.image" 
-                 [alt]="produit.nom" 
-                 onerror="this.src='assets/images/placeholder.jpg'">
+                         [alt]="produit.nom" 
+                         onerror="this.src='assets/images/placeholder.jpg'">
+                      
             <div class="produit-overlay" *ngIf="panierService.estDansPanier(produit.id)">
               <span class="dans-panier">Dans le panier</span>
             </div>

@@ -1,7 +1,7 @@
 <!-- admin-dashboard.component.html -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/admin">Employe Dashboard</a>
+    <a class="navbar-brand" routerLink="/employe/acceuil" routerLinkActive="active"><h2>Boulangerie Artisanale</h2></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarAdmin">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -11,6 +11,27 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="commande" routerLinkActive="active">
             <i class="bi bi-box me-2"></i>Commandes
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="paiements" routerLinkActive="active">
+            <i class="bi bi-box me-2"></i>Paiements
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="livraison" routerLinkActive="active">
+            <i class="bi bi-box me-2"></i>Suivi Livraison
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="chats" routerLinkActive="active">
+            <i class="bi bi-box me-2"></i>Support Clients
           </a>
         </li>
       </ul>

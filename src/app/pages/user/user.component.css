@@ -1,0 +1,106 @@
+.users-container {
+    padding: 2rem;
+    background: linear-gradient(135deg, #F5F0E1, #FFF8F0);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.users-container h1 {
+    color: #8B4513;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+
+/* Boutons */
+
+.btn {
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-add {
+    background: linear-gradient(135deg, #8B4513, #D2691E);
+    color: #fff;
+    border: none;
+}
+
+.btn-add:hover {
+    opacity: 0.9;
+}
+
+.btn-edit {
+    background-color: #D2691E;
+    color: #fff;
+    border: none;
+    margin-right: 0.5rem;
+}
+
+.btn-edit:hover {
+    background-color: #8B4513;
+}
+
+.btn-delete {
+    background-color: #c0392b;
+    color: #fff;
+    border: none;
+}
+
+.btn-delete:hover {
+    background-color: #a93226;
+}
+
+
+/* Tableau */
+
+.table-users {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.table-users th {
+    background-color: #D2691E;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.8rem;
+    border-radius: 8px 8px 0 0;
+}
+
+.table-users td {
+    background-color: #fff;
+    padding: 0.8rem;
+    vertical-align: middle;
+    border-bottom: 10px solid transparent;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.search-container {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+}
+
+.search-input {
+    padding: 0.5rem 0.5rem 0.5rem 2rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    outline: none;
+    width: 250px;
+}
+
+.search-input:focus {
+    border-color: #8B4513;
+    box-shadow: 0 0 5px rgba(139, 69, 19, 0.3);
+}

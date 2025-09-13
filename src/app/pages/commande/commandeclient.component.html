@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Commandes</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+</head>
+<body>
+  <div class="commandes-container">
+    <!-- Header -->
+    <div class="commandes-header">
+      <h1><i class="fas fa-shopping-cart"></i> Gestion des Commandes</h1>
+      <p>Suivez et gérez les commandes de vos clients</p>
+    </div>
+
+    <!-- Filtres -->
+    <div class="controls-section">
+      <div class="filters">
+        <div class="filter-group">
+          <label for="searchTerm">Rechercher</label>
+          <input type="text" id="searchTerm" [(ngModel)]="searchTerm" (ngModelChange)="RechercherCommandes()" placeholder="Nom client, ID commande...">
+        </div>
+        <div class="filter-group">
+          <label for="filterStatut">Statut</label>
+          <select id="filterStatut" [(ngModel)]="filterStatut" (ngModelChange)="Filtrer()">
+            <option value="">Tous</option>
+            <option value="en_préparation">En préparation</option>
+            <option value="en_livraison">En livraison</option>
+            <option value="livrée">Livrée</option>
+            <option value="annulée">Annulée</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau -->
+    <div class="commandes-table-container">
+  <tr *ngIf="commandesFiltrees.length === 0">
+    <td colspan="5" class="no-results">
+      <i class="fas fa-exclamation-circle"></i>
+      Aucune commande trouvée.
+    </td>
+  </tr>
+      <table class="commandes-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Montant</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let commande of commandesFiltrees">
+            <td>{{ commande.id }}</td>
+            <td>
+              <div class="client-info">
+                <div class="client-nom">{{ commande.user?.nomComplet }}</div>
+                <div class="client-email">{{ commande.user?.email }}</div>
+              </div>
+            </td>
+            <td class="montant-cell">{{ commande.montant_total | currency:'XOF' }}</td>
+            <td>
+              <span class="statut-badge"
+                [ngClass]="{
+                  'statut-preparation': commande.statut === 'en_préparation',
+                  'statut-livraison': commande.statut === 'en_livraison',
+                  'statut-livree': commande.statut === 'livrée',
+                  'statut-annulee': commande.statut === 'annulée',
+                  'statut-prete': commande.statut === 'prete'
+                }">
+                {{ commande.statut | titlecase }}
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button class="action-btn btn-view" (click)="voirDetails(commande)"><i class="fas fa-eye"></i> Voir</button>
+             <button class="action-btn btn-edit" *ngIf="commande.statut !== 'livrée' && commande.statut !== 'annulée'"><i class="fas fa-edit"></i> Modifier</button>
+             <button 
+                class="action-btn btn-non-paye"
+                *ngIf="commande.paiement && commande.paiement.statut !== 'payée'">
+                <i class="fas fa-times-circle"></i> Non Payée
+            </button>
+              <button class="action-btn btn-facture" (click)="telechargerFacturePDF(commande)">
+                <i class="fas fa-file-pdf"></i> Facture
+              </button>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal Détails commande -->
+<div class="modal" [class.show]="showModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Détails de la commande #{{ selectedCommande?.id }}</h2>
+      <span class="close" (click)="fermerModal()">&times;</span>
+    </div>
+
+    <div class="modal-body" *ngIf="selectedCommande">
+      <div class="commande-info">
+        <p><strong>Client :</strong> {{ selectedCommande.user?.nomComplet }} ({{ selectedCommande.client?.email }})</p>
+        <p><strong>Montant :</strong> {{ selectedCommande.montant_total | currency:'XOF' }}</p>
+        <p><strong>Statut :</strong> {{ selectedCommande.statut | titlecase }}</p>
+        <p><strong>Paiement :</strong> {{ selectedCommande.paiement?.statut || 'Non payé' }}</p>
+        <p><strong>Date :</strong> {{ selectedCommande.created_at | date:'dd/MM/yyyy HH:mm' }}</p>
+      </div>
+
+      <h3>Articles commandés</h3>
+      <table class="articles-table" *ngIf="selectedCommande.produit_commander?.length > 0">
+        <thead>
+          <tr>
+             <th>Produit</th>
+             <th>Quantité</th>
+             <th>Prix unitaire</th>
+      <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of selectedCommande.produit_commander">
+            <td>{{ item.produit?.nom }}</td>
+      <td>{{ item.quantite }}</td>
+      <td>{{ item.produit?.prix | currency:'XOF' }}</td>
+      <td>{{ (item.quantite * item.produit?.prix) | currency:'XOF' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="!selectedCommande.produit_commander || selectedCommande.produit_commander.length === 0">
+  Aucun produit commandé.
+    </p>
+
+      <button class="btn-facture" >
+        <i class="fas fa-file-pdf" (click)="telechargerFacturePDF(selectedCommande)"></i> Générer Facture
+      </button>
+    </div>
+  </div>
+</div>
+
+<!--Modal pour facture-->
+<div class="modalF fade" id="modalFacture" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-contentF">
+      <div class="modal-headerF" style="background: linear-gradient(135deg, #8B4513, #D2691E); color:white;">
+        <h5 class="modal-title">Facture #{{ commandeSelectionnee?.id }}</h5>
+        <button type="button" class="btn-closeF" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-bodyF">
+        <p><strong>Client :</strong> {{ commandeSelectionnee?.user?.nomComplet }}</p>
+        <p><strong>Email :</strong> {{ commandeSelectionnee?.user?.email }}</p>
+        <table class="table table-striped">
+          <thead style="background: linear-gradient(135deg, #8B4513, #D2691E); color:white;">
+            <tr>
+              <th>Produit</th>
+              <th>Prix</th>
+              <th>Quantité</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of commandeSelectionnee?.produit_commander">
+              <td>{{ item.produit?.nom }}</td>
+              <td>{{ item.produit?.prix | currency:'XOF' }}</td>
+              <td>{{ item.quantite }}</td>
+              <td>{{ (item.quantite * (item.produit?.prix || 0)) | currency:'XOF' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="text-end"><strong>Montant total :</strong> {{ commandeSelectionnee?.montant_total | currency:'XOF' }}</p>
+        <p *ngIf="commandeSelectionnee?.paiement"><strong>Statut paiement :</strong> {{ commandeSelectionnee?.paiement?.statut | titlecase }}</p>
+        <p *ngIf="commandeSelectionnee?.livraison"><strong>Statut livraison :</strong> {{ commandeSelectionnee?.livraison?.statut | titlecase }}</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary" (click)="telechargerFacturePDF(commandeSelectionnee!)">
+          <i class="fas fa-download"></i> Télécharger PDF
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

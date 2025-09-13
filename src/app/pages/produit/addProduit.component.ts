@@ -132,7 +132,9 @@ export class AddProduitComponent {
       if (this.isEditMode && this.produitId) {
         operation = this.produitService.updateProduit(formData, this.produitId); 
       } else {
+        console.log("salut");
         operation = this.produitService.addProduit(formData); 
+
       }
 
       operation.subscribe({

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TokenResponse } from '../../models/token-response';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 
@@ -10,7 +10,9 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    CommonModule
+    CommonModule,
+    RouterLink,
+   
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'

@@ -1,82 +1,151 @@
-<div class="container">
+<!-- produit.component.html -->
+<div class="container produits-container">
+  <!-- En-tête avec statistiques de stock (Admin seulement) -->
+  <div *ngIf="canManageProducts() && stockStatistics" class="stock-statistics mb-4">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="stat-card stat-total">
+          <i class="fas fa-boxes"></i>
+          <div class="stat-number">{{ stockStatistics.total }}</div>
+          <div class="stat-label">Total Produits</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card stat-critique">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div class="stat-number">{{ stockStatistics.critique }}</div>
+          <div class="stat-label">Stock Épuisé</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card stat-faible">
+          <i class="fas fa-exclamation-circle"></i>
+          <div class="stat-number">{{ stockStatistics.faible }}</div>
+          <div class="stat-label">Stock Faible</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-card stat-bon">
+          <i class="fas fa-check-circle"></i>
+          <div class="stat-number">{{ stockStatistics.bon }}</div>
+          <div class="stat-label">Stock Bon</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- En-tête principal -->
   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1>Liste des produits</h1>
-    <button 
-      *ngIf="canAddProduct()" 
-      class="btn btn-success" 
-      routerLink="/admin/addProduit">
-      <i class="bi bi-plus-circle"></i> Ajouter un produit
-    </button>
+    <h1>Liste des Produits</h1>
+    <div class="d-flex gap-2">
+      <!-- Filtres de stock (Admin seulement) -->
+      <div *ngIf="canManageProducts()" class="btn-group me-3">
+        <button class="btn btn-sm" [class]="getFilterButtonClass('tous')" (click)="stockFilter = 'tous'">
+          Tous
+        </button>
+        <button class="btn btn-sm" [class]="getFilterButtonClass('critique')" (click)="stockFilter = 'critique'">
+          <i class="fas fa-exclamation-triangle"></i> Critique
+        </button>
+        <button class="btn btn-sm" [class]="getFilterButtonClass('faible')" (click)="stockFilter = 'faible'">
+          <i class="fas fa-exclamation-circle"></i> Faible
+        </button>
+        <button class="btn btn-sm" [class]="getFilterButtonClass('moyen')" (click)="stockFilter = 'moyen'">
+          <i class="fas fa-info-circle"></i> Moyen
+        </button>
+        <button class="btn btn-sm" [class]="getFilterButtonClass('bon')" (click)="stockFilter = 'bon'">
+          <i class="fas fa-check-circle"></i> Bon
+        </button>
+      </div>
+      
+      <button *ngIf="canAddProduct()" class="btn btn-add" routerLink="/admin/addProduit">
+        <i class="fas fa-plus me-1"></i> Ajouter un produit
+      </button>
+    </div>
   </div>
 
   <!-- Message d'erreur -->
   <div *ngIf="error" class="alert alert-danger">
-    <i class="bi bi-exclamation-triangle"></i> {{ error }}
-    <button *ngIf="error.includes('Session')" 
-            class="btn btn-sm btn-outline-danger ms-2" 
-            (click)="router.navigate(['/login'])">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+    <button *ngIf="error.includes('Session')" class="btn btn-sm btn-outline-danger ms-2" (click)="router.navigate(['/login'])">
       Se reconnecter
     </button>
   </div>
 
   <!-- Indicateur de chargement -->
   <div *ngIf="isLoading" class="text-center">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Chargement...</span>
-    </div>
+    <div class="spinner-border text-primary" role="status"></div>
     <p>Chargement des produits...</p>
   </div>
 
   <!-- Tableau des produits -->
   <div *ngIf="!isLoading && !error">
-    <div *ngIf="produits.length === 0" class="alert alert-info">
-      <i class="bi bi-info-circle"></i> Aucun produit trouvé.
+    <div *ngIf="getFilteredProduits().length === 0" class="alert alert-info">
+      <i class="fas fa-info-circle"></i> Aucun produit trouvé pour ce filtre.
     </div>
 
-    <table *ngIf="produits.length > 0" class="table table-striped mt-3">
-      <thead class="table-dark">
+    <table *ngIf="getFilteredProduits().length > 0" class="table table-produits">
+      <thead>
         <tr>
           <th>Image</th>
-          <th>ID</th>
           <th>Nom</th>
           <th>Description</th>
           <th>Stock</th>
           <th>Prix</th>
           <th>Catégorie</th>
+          <th *ngIf="canManageProducts()">Statut Stock</th>
           <th *ngIf="canManageProducts()">Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let produit of produits">
+        <tr *ngFor="let produit of getFilteredProduits()" [class]="getStockStatusClass(produit)">
           <td>
             <img [src]="'http://127.0.0.1:8000/storage/' + produit.image" 
                 alt="Image produit" 
-                style="width: 150px; height: auto;"
-                >
+                class="produit-img">
           </td>
-          <td class="text-center">{{ produit.id }}</td>
           <td class="text-center">{{ produit.nom }}</td>
           <td class="text-center">{{ produit.description }}</td>
-          <td class="text-center">{{ produit.stock }}</td>
-          <td class="text-center">{{ produit.prix  }}</td>
           <td class="text-center">
-            <span class="badge bg-secondary">
-              {{ produit.categorie?.nom || 'Non défini' }}
+            <span [class]="getStockBadgeClass(produit.stock)">
+              {{ produit.stock }} {{ getStockText(produit.stock) }}
             </span>
           </td>
+          <td class="text-center">{{ produit.prix | currency:'XOF' }}</td>
+          <td class="text-center">
+            <span class="badge bg-secondary">{{ produit.categorie?.nom || 'Non défini' }}</span>
+          </td>
+          
+          <!-- Colonne Statut Stock (Admin seulement) -->
+          <td *ngIf="canManageProducts()" class="text-center">
+            <div class="stock-status-indicator">
+              <i [class]="getStockIcon(produit)" [class]="getStockStatusClass(produit)"></i>
+              <small class="d-block mt-1" [title]="produit.stock_alert_message">
+                {{ produit.stock_alert_message }}
+              </small>
+            </div>
+          </td>
+          
+          <!-- Colonne Actions (Admin seulement) -->
           <td *ngIf="canManageProducts()">
-            <div class="btn-group" role="group">
-              <button 
-                class="btn btn-primary btn-sm" 
-                [routerLink]="['/admin/updateProduit', produit.id]"
-                title="Modifier">
-                Modifier
-              </button>
-              <button 
-                class="btn btn-danger btn-sm" 
-                (click)="deleteProduit(produit.id)"
-                title="Supprimer">
-                Supprimer
+            <div class="btn-group-vertical" role="group">
+              <!-- Boutons standards -->
+              <div class="btn-group mb-1">
+                <button class="btn btn-edit btn-sm" [routerLink]="['/admin/updateProduit', produit.id]">
+                  <i class="fas fa-edit me-1"></i> Modifier
+                </button>
+                <button class="btn btn-delete btn-sm" (click)="deleteProduit(produit.id)">
+                  <i class="fas fa-trash me-1"></i> Supprimer
+                </button>
+              </div>
+              
+              <!-- Bouton Réapprovisionner (apparaît si stock faible ou épuisé) -->
+              <button *ngIf="produit.need_restocking" 
+                      class="btn btn-restock btn-sm"
+                      (click)="openRestockModal(produit)"
+                      [class.btn-danger]="produit.stock <= 0"
+                      [class.btn-warning]="produit.stock > 0 && produit.stock <= 5">
+                <i class="fas fa-plus-circle me-1"></i>
+                {{ produit.stock <= 0 ? 'Réapprovisionner URGENT' : 'Réapprovisionner' }}
               </button>
             </div>
           </td>
@@ -85,7 +154,110 @@
     </table>
   </div>
 
-  <!-- Informations utilisateur pour debug -->
+  <!-- Modal de réapprovisionnement -->
+  <div *ngIf="showRestockModal" class="modal-overlay" (click)="closeRestockModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <i class="fas fa-plus-circle"></i>
+          Réapprovisionner le produit
+        </h4>
+        <button type="button" class="btn-close" (click)="closeRestockModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div *ngIf="selectedProduit" class="product-info mb-3">
+          <div class="row">
+            <div class="col-md-4">
+              <img [src]="'http://127.0.0.1:8000/storage/' + selectedProduit.image" 
+                   alt="Image produit" 
+                   class="img-fluid rounded">
+            </div>
+            <div class="col-md-8">
+              <h5>{{ selectedProduit.nom }}</h5>
+              <p class="text-muted">{{ selectedProduit.description }}</p>
+              <div class="stock-info">
+                <strong>Stock actuel:</strong> 
+                <span [class]="getStockBadgeClass(selectedProduit.stock)">
+                  {{ selectedProduit.stock }}
+                </span>
+              </div>
+              <div class="stock-alert mt-2">
+                <i [class]="getStockIcon(selectedProduit)" [class]="getStockStatusClass(selectedProduit)"></i>
+                <span class="ms-2">{{ selectedProduit.stock_alert_message }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="restock-form">
+          <label for="restockQuantity" class="form-label">
+            <strong>Quantité à ajouter:</strong>
+          </label>
+          <div class="input-group">
+            <button class="btn btn-outline-secondary" type="button" (click)="restockQuantity = Math.max(1, restockQuantity - 1)">
+              <i class="fas fa-minus"></i>
+            </button>
+            <input type="number" 
+                   class="form-control text-center" 
+                   id="restockQuantity"
+                   [(ngModel)]="restockQuantity" 
+                   min="1" 
+                   max="10000"
+                   placeholder="Quantité">
+            <button class="btn btn-outline-secondary" type="button" (click)="restockQuantity = Math.min(10000, restockQuantity + 1)">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          
+          <!-- Boutons rapides -->
+          <div class="quick-buttons mt-3">
+            <small class="text-muted d-block mb-2">Quantités rapides:</small>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-outline-primary" (click)="restockQuantity = 10">10</button>
+              <button class="btn btn-sm btn-outline-primary" (click)="restockQuantity = 25">25</button>
+              <button class="btn btn-sm btn-outline-primary" (click)="restockQuantity = 50">50</button>
+              <button class="btn btn-sm btn-outline-primary" (click)="restockQuantity = 100">100</button>
+            </div>
+          </div>
+
+          <!-- Aperçu du nouveau stock -->
+          <div class="new-stock-preview mt-3 p-2 bg-light rounded">
+            <strong>Nouveau stock après réapprovisionnement:</strong>
+            <span class="badge bg-success ms-2">
+              {{ (selectedProduit?.stock || 0) + restockQuantity }}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" 
+                class="btn btn-secondary" 
+                (click)="closeRestockModal()"
+                [disabled]="isRestocking">
+          Annuler
+        </button>
+        <button type="button" 
+                class="btn btn-success"
+                (click)="confirmRestock()"
+                [disabled]="isRestocking || restockQuantity <= 0">
+          <span *ngIf="isRestocking">
+            <i class="fas fa-spinner fa-spin me-1"></i>
+            Réapprovisionnement...
+          </span>
+          <span *ngIf="!isRestocking">
+            <i class="fas fa-check me-1"></i>
+            Confirmer (+{{ restockQuantity }})
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info debug -->
   <div *ngIf="currentUser" class="mt-4 small text-muted">
     <strong>Debug:</strong> Connecté en tant que {{ currentUser.nomComplet }} ({{ currentUser.role }})
   </div>

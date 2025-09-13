@@ -33,11 +33,11 @@ export class CommandesService {
   }
 
   // Mettre à jour statut de commande (Employé/Admin)
-  updateStatut(id: number, statut: string): Observable<any> {
-    return this.http.put(`${this.URL}/commandes/${id}`, { statut }).pipe(
-      catchError(this.handleError)
-    );
-  }
+  updateStatut(id: number, statut: Commande['statut']): Observable<Commande> {
+  return this.http.put<Commande>(`${this.URL}/commandes/${id}`, { statut }).pipe(
+    catchError(this.handleError)
+  );
+}
 
   // Mettre à jour statut de livraison (Employé/Admin)
   updateLivraisonStatut(commandeId: number, statut: string): Observable<any> {
@@ -50,7 +50,7 @@ export class CommandesService {
 
   // Mettre à jour statut de paiement (Employé/Admin)
   updatePaiementStatut(commandeId: number, statut: string): Observable<any> {
-    return this.http.put(`${this.URL}/commandes/${commandeId}/paiement`, { 
+    return this.http.put(`${this.URL}/commande/${commandeId}/paiement`, { 
       statut: statut 
     }).pipe(
       catchError(this.handleError)

@@ -1,0 +1,112 @@
+ * {
+     box-sizing: border-box;
+     margin: 0;
+     padding: 0;
+ }
+ 
+ body {
+     font-family: Arial, sans-serif;
+     background: #f5f6fa;
+     padding: 20px;
+ }
+ 
+ h1 {
+     text-align: center;
+     margin-bottom: 30px;
+     background: linear-gradient(135deg, #8B4513, #D2691E);
+     color: white;
+     padding: 20px;
+     border-radius: 15px;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+ }
+ 
+ table {
+     width: 100%;
+     border-collapse: collapse;
+     background: white;
+     border-radius: 10px;
+     overflow: hidden;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+ }
+ 
+ thead {
+     background: linear-gradient(135deg, #8B4513, #D2691E);
+     color: white;
+ }
+ 
+ th,
+ td {
+     padding: 12px 15px;
+     text-align: left;
+     font-size: 0.95rem;
+     border-bottom: 1px solid #f1f1f1;
+ }
+ 
+ tbody tr:hover {
+     background: #f9f9f9;
+ }
+ 
+ .statut-badge {
+     padding: 5px 12px;
+     border-radius: 15px;
+     font-size: 0.85rem;
+     font-weight: bold;
+     color: white;
+     text-align: center;
+     display: inline-block;
+ }
+ 
+ .statut-en_cours {
+     background: #f39c12;
+ }
+ 
+ .statut-payee {
+     background: #27ae60;
+ }
+ 
+ .statut-annulee {
+     background: #e74c3c;
+ }
+ 
+ .actions-cell {
+     display: flex;
+     flex-wrap: wrap;
+     gap: 6px;
+ }
+ 
+ .action-btn {
+     padding: 6px 10px;
+     border: none;
+     border-radius: 8px;
+     font-size: 0.85rem;
+     font-weight: bold;
+     cursor: pointer;
+     display: flex;
+     align-items: center;
+     gap: 5px;
+     transition: 0.2s;
+     color: white;
+ }
+ 
+ .btn-paye {
+     background: #27ae60;
+ }
+ 
+ .btn-non-paye {
+     background: #e67e22;
+ }
+ 
+ .btn-annulee {
+     background: #e74c3c;
+ }
+ 
+ .action-btn:hover {
+     opacity: 0.9;
+     transform: translateY(-2px);
+ }
+ 
+ @media (max-width: 768px) {
+     .actions-cell {
+         flex-direction: column;
+     }
+ }

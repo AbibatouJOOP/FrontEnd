@@ -1,18 +1,20 @@
 <!-- Navbar -->
 <nav class="navbar">
-  <div class="navbar-brand">
-    <h2>Boulangerie Artisanale</h2>
-  </div>
+  <a class="navbar-brand" routerLink="/client/acceuil"><h2>Boulangerie Artisanale</h2></a>
+    <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarAdmin">
+      <span class="navbar-toggler-icon"></span>
+    </button> -->
   
   <div class="navbar-menu">
     <a routerLink="catalogue" routerLinkActive="active" class="nav-link">
       <i class="fas fa-bread-slice"></i> Catalogue
     </a>
-    <a routerLink="commande" routerLinkActive="active" class="nav-link">
+    <a routerLink="mes-commandes" routerLinkActive="active" class="nav-link">
       <i class="fas fa-shopping-bag"></i> Mes Commandes
     </a>
-    
-    <!-- Icône du panier - Navigation vers la page panier -->
+    <a class="nav-link" routerLink="chats" routerLinkActive="active">
+      <i class="bi bi-box me-2"></i>chats
+    </a>
     <a routerLink="panier" routerLinkActive="active" class="panier-container nav-link">
       <i class="fas fa-shopping-cart panier-icon"></i>
       <span class="panier-badge">

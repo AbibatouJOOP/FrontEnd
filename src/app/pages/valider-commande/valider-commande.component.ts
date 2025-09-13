@@ -169,7 +169,7 @@ export class ValiderCommandeComponent implements OnInit {
         produit_id: item.produit.id,
         quantite: item.quantite,
         prixU: item.produit.prix,
-        promo_id: null // À implémenter si vous avez des promos
+        promo_id: null 
       })),
       montant_total: this.panierService.getTotal(),
       infos_livraison: {
@@ -198,7 +198,7 @@ export class ValiderCommandeComponent implements OnInit {
         this.panierService.viderPanier();
         
         // Rediriger vers la liste des commandes du client avec message de succès
-        this.router.navigate(['/client/commandes'], {
+        this.router.navigate(['/client/commande'], {
           queryParams: { 
             success: 'Votre commande a été passée avec succès! Vous recevrez une confirmation par téléphone.',
             commandeId: response.commande?.id || response.id

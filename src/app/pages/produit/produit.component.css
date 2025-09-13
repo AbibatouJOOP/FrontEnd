@@ -1,63 +1,424 @@
-.form-container {
-  max-width: 600px;
-  margin: 0 auto;
+/* Styles de base existants */
+.produits-container {
+    padding: 2rem;
+    background: linear-gradient(135deg, #F5F0E1, #FFF8F0);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.table td, .table th {
-  text-align: center;
+.produits-container h1 {
+    color: #8B4513;
+    font-weight: bold;
 }
 
-.card {
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-  border: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.card-header {
-  background-color: #f8f9fa;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.form-label {
-  font-weight: 500;
-  color: #495057;
-}
-
-.form-control:focus,
-.form-select:focus {
-  border-color: #80bdff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
-
-.btn-group .btn {
-  margin-right: 0.5rem;
-}
-
-.btn-group .btn:last-child {
-  margin-right: 0;
-}
-
-.error-message {
-  color: #dc3545;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-.spinner-border-sm {
-  width: 1rem;
-  height: 1rem;
-}
-
-@media (max-width: 768px) {
-  .form-container {
-    padding: 0 15px;
-  }
-  
-  .d-flex.justify-content-between {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .d-flex.justify-content-between .btn {
+/* Table */
+.table-produits {
     width: 100%;
-  }
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+.table-produits th {
+    background-color: #D2691E;
+    color: #fff;
+    font-weight: 600;
+    padding: 0.8rem;
+    border-radius: 8px 8px 0 0;
+}
+
+.table-produits td {
+    background-color: #fff;
+    padding: 0.8rem;
+    vertical-align: middle;
+    border-bottom: 10px solid transparent;
+}
+
+.produit-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons existants */
+.btn-add {
+    background: linear-gradient(135deg, #8B4513, #D2691E);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+.btn-edit {
+    background-color: #D2691E;
+    color: #fff;
+    border: none;
+}
+
+.btn-edit:hover {
+    background-color: #8B4513;
+    color: #fff;
+}
+
+.btn-delete {
+    background-color: #c0392b;
+    color: #fff;
+    border: none;
+}
+
+.btn-delete:hover {
+    background-color: #a93226;
+    color: #fff;
+}
+
+.btn-group button {
+    margin-right: 0.3rem;
+}
+
+/* NOUVEAUX STYLES POUR LA GESTION DES STOCKS */
+
+/* Statistiques de stock */
+.stock-statistics {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Couleurs des cartes statistiques */
+.stat-total {
+    border-left-color: #3498db;
+}
+
+.stat-total i, .stat-total .stat-number {
+    color: #3498db;
+}
+
+.stat-critique {
+    border-left-color: #e74c3c;
+}
+
+.stat-critique i, .stat-critique .stat-number {
+    color: #e74c3c;
+}
+
+.stat-faible {
+    border-left-color: #f39c12;
+}
+
+.stat-faible i, .stat-faible .stat-number {
+    color: #f39c12;
+}
+
+.stat-bon {
+    border-left-color: #27ae60;
+}
+
+.stat-bon i, .stat-bon .stat-number {
+    color: #27ae60;
+}
+
+/* Classes pour les statuts de stock dans les lignes */
+.stock-critique {
+    background-color: rgba(231, 76, 60, 0.1) !important;
+    border-left: 4px solid #e74c3c;
+}
+
+.stock-faible {
+    background-color: rgba(243, 156, 18, 0.1) !important;
+    border-left: 4px solid #f39c12;
+}
+
+.stock-moyen {
+    background-color: rgba(52, 152, 219, 0.1) !important;
+    border-left: 4px solid #3498db;
+}
+
+.stock-bon {
+    background-color: rgba(39, 174, 96, 0.1) !important;
+    border-left: 4px solid #27ae60;
+}
+
+/* Indicateurs de statut de stock */
+.stock-status-indicator {
+    text-align: center;
+}
+
+.stock-status-indicator i {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.stock-status-indicator .stock-critique {
+    color: #e74c3c;
+}
+
+.stock-status-indicator .stock-faible {
+    color: #f39c12;
+}
+
+.stock-status-indicator .stock-moyen {
+    color: #3498db;
+}
+
+.stock-status-indicator .stock-bon {
+    color: #27ae60;
+}
+
+/* Bouton de réapprovisionnement */
+.btn-restock {
+    background-color: #27ae60;
+    color: #fff;
+    border: none;
+    font-weight: 500;
+    animation: pulse-restock 2s infinite;
+}
+
+.btn-restock:hover {
+    background-color: #219a52;
+    color: #fff;
+}
+
+.btn-restock.btn-danger {
+    background-color: #e74c3c;
+    animation: pulse-urgent 1s infinite;
+}
+
+.btn-restock.btn-danger:hover {
+    background-color: #c0392b;
+    color: #fff;
+}
+
+.btn-restock.btn-warning {
+    background-color: #f39c12;
+    animation: pulse-warning 2s infinite;
+}
+
+.btn-restock.btn-warning:hover {
+    background-color: #e67e22;
+    color: #fff;
+}
+
+/* Animations pour les boutons de réapprovisionnement */
+@keyframes pulse-restock {
+    0% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(39, 174, 96, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(39, 174, 96, 0); }
+}
+
+@keyframes pulse-urgent {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+@keyframes pulse-warning {
+    0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(243, 156, 18, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+}
+
+/* Modal de réapprovisionnement */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    backdrop-filter: blur(2px);
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 10px 10px 0 0;
+}
+
+.modal-title {
+    margin: 0;
+    color: #8B4513;
+    font-weight: bold;
+}
+
+.modal-title i {
+    color: #27ae60;
+    margin-right: 0.5rem;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close:hover {
+    color: #000;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0 0 10px 10px;
+}
+
+/* Formulaire de réapprovisionnement */
+.product-info {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.stock-info {
+    margin-top: 0.5rem;
+}
+
+.stock-alert {
+    padding: 0.5rem;
+    border-radius: 5px;
+    background-color: rgba(243, 156, 18, 0.1);
+    border-left: 3px solid #f39c12;
+}
+
+.restock-form .input-group {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.quick-buttons {
+    text-align: center;
+}
+
+.new-stock-preview {
+    text-align: center;
+    border: 2px dashed #27ae60;
+}
+
+/* Badges de stock */
+.badge.bg-danger {
+    background-color: #e74c3c !important;
+}
+
+.badge.bg-warning {
+    background-color: #f39c12 !important;
+    color: #fff !important;
+}
+
+.badge.bg-info {
+    background-color: #3498db !important;
+}
+
+.badge.bg-success {
+    background-color: #27ae60 !important;
+}
+
+/* Groupes de boutons verticaux */
+.btn-group-vertical {
+    width: 100%;
+}
+
+.btn-group-vertical .btn-group {
+    display: flex;
+    width: 100%;
+}
+
+.btn-group-vertical .btn-group .btn {
+    flex: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .produits-container {
+        padding: 1rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .table-produits {
+        font-size: 0.8rem;
+    }
+    
+    .produit-img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .btn-group-vertical .btn {
+        margin-bottom: 0.25rem;
+    }
 }

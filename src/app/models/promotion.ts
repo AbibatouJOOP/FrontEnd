@@ -1,3 +1,5 @@
+import { Produit } from "./produit";
+
 export interface Promotion {
   id: number;
   nom: string;
@@ -23,5 +25,5 @@ export interface PromotionProduit {
   
   // Relations
   promotion?: Promotion;
-  produit?: any;
+  produit?: Produit;
 }

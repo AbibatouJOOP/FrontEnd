@@ -1,385 +1,425 @@
-* {
+        /*debut css facture*/
+        
+        .modalF {
+            /*display: none;
+            position: fixed;
+            z-index: 1100;
+            /* Plus élevé que le modal principal */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            /* Overlay plus foncé */
+            backdrop-filter: blur(5px);
+            /* Effet de flou plus prononcé */
+        }
+        
+        .modalF.show {
+            display: block;
+        }
+        
+        .modal-contentF {
+            background: #fff;
+            margin: 50px auto;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .modal-headerF {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+            padding: 20px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-headerF h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .closeF {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .modal-bodyF {
+            padding: 20px;
+        }
+        
+        .commande-info p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+        
+        .articles-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .articles-table th,
+        .articles-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .articles-table th {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+        }
+        
+        .btn-facture {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+        
+        .btn-facture:hover {
+            opacity: 0.9;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        /*fin css facture*/
+        
+        * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-
-
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            /*overflow-y: auto;*/
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+        }
+        
+        .modal.show {
+            display: block;
+        }
+        
+        .modal-content {
+            background: #fff;
+            margin: 50px auto;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+            padding: 20px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .commande-info p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+        
+        .articles-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .articles-table th,
+        .articles-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .articles-table th {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+        }
+        
+        .btn-facture {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+        
+        .btn-facture:hover {
+            opacity: 0.9;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
         .commandes-container {
             max-width: 1400px;
-            margin: 0 auto;
+            margin: 40px auto;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
-
+        
         .commandes-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            background: linear-gradient(135deg, #8B4513, #D2691E);
             color: white;
             padding: 30px;
             text-align: center;
         }
-
+        
         .commandes-header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 300;
+            font-size: 2rem;
+            margin-bottom: 5px;
         }
-
-        .commandes-header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
+        
         .controls-section {
-            padding: 30px;
+            padding: 20px;
             background: #f8f9fa;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #e9ecef;
         }
-
+        
         .filters {
             display: flex;
             gap: 20px;
-            align-items: center;
         }
-
+        
         .filter-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
         }
-
+        
         .filter-group label {
-            font-weight: 600;
-            color: #495057;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 5px;
         }
-
+        
+        .filter-group input,
         .filter-group select {
-            padding: 10px 15px;
+            padding: 10px;
             border: 2px solid #e9ecef;
             border-radius: 10px;
-            font-size: 0.95rem;
-            background: white;
-            transition: all 0.3s ease;
-            min-width: 180px;
+            font-size: 0.9rem;
         }
-
-        .filter-group select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-
-        .btn-refresh {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-refresh:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
-        }
-
-        .stats-bar {
-            padding: 20px 30px;
-            background: linear-gradient(135deg, #8e44ad, #9b59b6);
-            color: white;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .error, .loading, .empty-state {
-            padding: 40px;
-            text-align: center;
-            color: #6c757d;
-        }
-
-        .error {
-            background: #fff5f5;
-            color: #e53e3e;
-            border-left: 4px solid #e53e3e;
-        }
-
-        .loading {
-            background: #f0f9ff;
-            color: #2563eb;
-        }
-
-        .empty-state h3 {
-            margin: 20px 0;
-            color: #495057;
-        }
-
-        /* Tableau des commandes */
+        
         .commandes-table-container {
-            padding: 30px;
+            padding: 20px;
             overflow-x: auto;
         }
-
+        
         .commandes-table {
             width: 100%;
             border-collapse: collapse;
             background: white;
-            border-radius: 15px;
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
-
+        
         .commandes-table thead {
-            background: linear-gradient(135deg, #34495e, #2c3e50);
+            background: linear-gradient(135deg, #8B4513, #D2691E);
             color: white;
         }
-
-        .commandes-table th {
-            padding: 20px 15px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.95rem;
-            letter-spacing: 0.5px;
-        }
-
+        
+        .commandes-table th,
         .commandes-table td {
-            padding: 20px 15px;
-            border-bottom: 1px solid #f1f3f4;
-            vertical-align: top;
-        }
-
-        .commandes-table tbody tr {
-            transition: all 0.3s ease;
-        }
-
-        .commandes-table tbody tr:hover {
-            background: #f8f9fa;
-            transform: scale(1.002);
-        }
-
-        /* Badges de statut */
-        .statut-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            margin: 2px;
-        }
-
-        .statut-preparation { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; }
-        .statut-prete { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
-        .statut-livraison { background: linear-gradient(135deg, #9b59b6, #8e44ad); color: white; }
-        .statut-livree { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
-        .statut-annulee { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
-
-        .statut-non-livree { background: linear-gradient(135deg, #f39c12, #e67e22); color: white; }
-        .statut-en-cours { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
-        .statut-non-paye { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
-        .statut-paye { background: linear-gradient(135deg, #27ae60, #2ecc71); color: white; }
-
-        /* Produits dans le tableau */
-        .produits-liste {
-            max-width: 300px;
-        }
-
-        .produit-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #f1f3f4;
+            padding: 15px;
+            text-align: left;
             font-size: 0.9rem;
+            border-bottom: 1px solid #f1f1f1;
         }
-
-        .produit-item:last-child {
-            border-bottom: none;
+        
+        .commandes-table tbody tr:hover {
+            background: #f9f9f9;
         }
-
-        .produit-nom {
-            font-weight: 600;
-            color: #2c3e50;
-            flex: 1;
-        }
-
-        .produit-quantite {
-            color: #6c757d;
-            margin: 0 10px;
-            font-size: 0.85rem;
-        }
-
-        .produit-prix {
-            font-weight: 600;
-            color: #27ae60;
-        }
-
-        .promo-badge {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            margin-left: 5px;
-        }
-
-        .prix-original {
-            text-decoration: line-through;
-            color: #95a5a6;
-            font-size: 0.8rem;
-        }
-
-        /* Actions */
-        .actions-cell {
-            min-width: 200px;
-        }
-
-        .action-btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin: 2px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .btn-edit {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-        }
-
-        .btn-delete {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            color: white;
-        }
-
-        .btn-view {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-            color: white;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
-
-        /* Formulaires inline pour les statuts */
-        .statut-select {
-            padding: 5px 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 0.85rem;
-            background: white;
-        }
-
-        /* Montants */
-        .montant-cell {
-            text-align: right;
-            font-weight: 700;
-            color: #27ae60;
-            font-size: 1.1rem;
-        }
-
-        /* Info client */
+        
         .client-info {
             font-size: 0.9rem;
+            color: black;
         }
-
+        
         .client-nom {
-            font-weight: 600;
+            font-weight: bold;
             color: #2c3e50;
         }
-
+        
         .client-email {
-            color: #6c757d;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
+            color: #7f8c8d;
         }
-
-        /* Date */
-        .date-cell {
-            font-size: 0.9rem;
-            color: #6c757d;
+        
+        .montant-cell {
+            font-weight: bold;
+            color: #27ae60;
         }
-
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        
+        .statut-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: black;
+        }
+        
+        .commandes-header {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
             padding: 30px;
-            gap: 15px;
-            background: #f8f9fa;
+            text-align: center;
         }
-
-        .pagination button {
-            padding: 10px 15px;
+        
+        .statut-livraison {
+            background: #3498db;
+        }
+        
+        .statut-livree {
+            background: #27ae60;
+        }
+        
+        .statut-annulee {
+            background: #e74c3c;
+        }
+        
+        .actions-cell {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .action-btn {
+            padding: 6px 10px;
             border: none;
             border-radius: 8px;
-            background: #6c757d;
-            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.2s;
         }
-
-        .pagination button:hover:not(:disabled) {
-            background: #495057;
-            transform: translateY(-1px);
+        
+        .btn-view {
+            background: #7f8c8d;
+            color: white;
         }
-
-        .pagination button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        
+        .btn-edit {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
+            color: white;
         }
-
-        .pagination span {
-            color: #495057;
-            font-weight: 600;
+        
+        .btn-delete {
+            background: #c0392b;
+            color: white;
         }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .commandes-table {
-                font-size: 0.85rem;
-            }
-            
-            .commandes-table th,
-            .commandes-table td {
-                padding: 15px 10px;
-            }
+        
+        .btn-paye {
+            background: #27ae60;
+            color: white;
         }
-
+        
+        .btn-non-paye {
+            background: #e67e22;
+            color: white;
+        }
+        
+        .btn-facture {
+            background: #8e44ad;
+            color: white;
+        }
+        
+        .action-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .statut-select {
+            padding: 6px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 0.85rem;
+        }
+        
         @media (max-width: 768px) {
             .controls-section {
                 flex-direction: column;
-                gap: 20px;
-                align-items: stretch;
-            }
-            
-            .filters {
-                flex-direction: column;
+                align-items: flex-start;
                 gap: 15px;
             }
-            
-            .commandes-table-container {
-                padding: 15px;
+            .actions-cell {
+                flex-direction: column;
             }
         }

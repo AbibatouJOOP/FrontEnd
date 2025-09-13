@@ -4,7 +4,7 @@ export class Livraison {
   id!: number;
   commande_id!: number;
   employe_id?: number;
-  statut!: 'livrée' | 'non_livrée' | 'en_cours' | 'annulée';
+  statut!: 'livrée' | 'non_livrée';
   date_livraison!: string;
   adresse_livraison!: string;
   frais_livraison!: number;

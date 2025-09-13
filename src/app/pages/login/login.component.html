@@ -1,28 +1,36 @@
-<div class="container d-flex justify-content-center align-items-center vh-100">
-  <div class="card p-4 shadow rounded-4" style="width: 100%; max-width: 400px;">
-    <h2 class="text-center text-primary mb-4">Connexion</h2>
-
-    <form [formGroup]="form" (ngSubmit)="login()">
-      <div class="mb-3">
-        <label for="email" class="form-label">Adresse e-mail</label>
-        <input formControlName="email" type="email" id="email" class="form-control" placeholder="Entrez votre email">
-        <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="text-danger mt-1">
-          Email invalide.
-        </div>
+<div class="auth-container d-flex justify-content-center align-items-center vh-100">
+  <div class="auth-card shadow rounded-4 overflow-hidden">
+    <!-- Header -->
+    <div class="auth-header text-center text-white py-4">
+      <div class="logo mb-2">
+        <i class="bi bi-basket fs-1"></i>
       </div>
+      <h2 class="fw-bold">Connexion</h2>
+      <p>Acceder à votre espace Boulangerie Artisanale</p>
+    </div>
 
-      <div class="mb-3">
-        <label for="password" class="form-label">Mot de passe</label>
-        <input formControlName="password" type="password" id="password" class="form-control" placeholder="Entrez votre mot de passe">
-        <div *ngIf="form.get('password')?.invalid && form.get('password')?.touched" class="text-danger mt-1">
-          Mot de passe requis.
+    <!-- Form -->
+    <div class="p-4">
+      <form [formGroup]="form" (ngSubmit)="login()">
+        <div class="mb-3">
+          <label for="email" class="form-label fw-bold">Adresse e-mail</label>
+          <input formControlName="email" id="email" type="email" class="form-control custom-input" placeholder="Entrez votre email">
         </div>
-      </div>
 
-      <button type="submit" class="btn btn-primary w-100" [disabled]="form.invalid">
-        <i class="bi bi-box-arrow-in-right"></i> Se connecter
-      </button>
-    </form>
+        <div class="mb-3">
+          <label for="password" class="form-label fw-bold">Mot de passe</label>
+          <input formControlName="password" id="password" type="password" class="form-control custom-input" placeholder="Entrez votre mot de passe">
+        </div>
+
+        <button type="submit" class="btn custom-btn w-100 fw-bold" [disabled]="form.invalid">
+          <i class="bi bi-box-arrow-in-right"></i> SE CONNECTER
+        </button>
+      </form>
+
+      <hr>
+      <p class="text-center mt-3">
+        Pas encore de compte ? <a routerLink="/register" class="text-gradient fw-bold">S’inscrire</a>
+      </p>
+    </div>
   </div>
 </div>
-

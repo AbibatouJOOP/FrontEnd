@@ -4,6 +4,8 @@ import { PanierService } from '../../services/panier.service';
 import { ProduitService } from '../../services/produit.service';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { Promotion } from '../../models/promotion';
+import { PromotionService } from '../../services/promotion.service';
 
 @Component({
   selector: 'app-catalogue',
@@ -18,16 +20,38 @@ export class CatalogueComponent {
   produits: Produit[] = [];
   loading: boolean = true;
   produitSelectionne: Produit | null = null;
+  promotions: Promotion[] = [];
+  promotionsActives: Promotion[] = [];
+  loadingPromos: boolean = true;
+
 
   constructor(
     private produitService: ProduitService,
     public panierService: PanierService,
-    private authService: AuthService
+    private authService: AuthService,
+    private promotionService: PromotionService
   ) {}
 
-  ngOnInit() {
+ ngOnInit() {
+    this.loadingPromos = true;
+
+    this.promotionService.getActive().subscribe({
+      next: (data) => {
+        this.promotionsActives = data; 
+        this.loadingPromos = false;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des promotions actives :", err);
+        this.promotionsActives = [];
+        this.loadingPromos = false;
+      }
+    });
+
     this.chargerProduits();
   }
+
+
+    
 
   chargerProduits() {
     this.loading = true;

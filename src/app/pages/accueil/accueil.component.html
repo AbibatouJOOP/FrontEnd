@@ -1,0 +1,534 @@
+<!-- Loader -->
+<div *ngIf="isLoading" class="d-flex justify-content-center align-items-center min-vh-50">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Chargement...</span>
+  </div>
+</div>
+
+<!-- Dashboard Content -->
+<div *ngIf="!isLoading && currentUser" class="dashboard-container">
+  
+  <!-- Welcome Header -->
+  <div class="welcome-header mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h2 class="mb-1">
+          <i class="fas fa-tachometer-alt text-primary me-2"></i>
+          Tableau de bord
+        </h2>
+        <p class="text-muted mb-0">
+          Bonjour {{ currentUser?.nomComplet }}, bienvenue dans votre espace 
+          <span class="badge bg-primary ms-1">{{ currentUser?.role }}</span>
+        </p>
+      </div>
+      <div class="col-md-4 text-end">
+        <div class="stats-time">
+          <small class="text-muted">
+            <i class="fas fa-calendar-alt me-1"></i>
+            {{ getCurrentDate() | date:'dd/MM/yyyy à HH:mm' }}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <ng-container *ngIf="currentUser.role === 'ADMIN'">
+    
+    <!-- Key Metrics Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-xl-3 col-md-6">
+        <div class="stats-card stats-card-primary">
+          <div class="stats-icon">
+            <i class="fas fa-shopping-bag"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ totalCommandes }}</h4>
+            <p class="stats-label">Total Commandes</p>
+            <small class="stats-sublabel">
+              <i class="fas fa-calendar-day me-1"></i>
+              {{ commandesDuJour }} aujourd'hui
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div class="stats-card stats-card-success">
+          <div class="stats-icon">
+            <i class="fas fa-euro-sign"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ formatCurrency(chiffreAffaires) }}</h4>
+            <p class="stats-label">Chiffre d'affaires</p>
+            <small class="stats-sublabel">
+              <i class="fas fa-credit-card me-1"></i>
+              {{ paiementsStatut.payee }} paiements validés
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div class="stats-card stats-card-info">
+          <div class="stats-icon">
+            <i class="fas fa-box"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ totalProduits }}</h4>
+            <p class="stats-label">Produits</p>
+            <small class="stats-sublabel">
+              <i class="fas fa-tags me-1"></i>
+              Catalogue actif
+            </small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6">
+        <div class="stats-card stats-card-warning">
+          <div class="stats-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ totalUtilisateurs }}</h4>
+            <p class="stats-label">Utilisateurs</p>
+            <small class="stats-sublabel">
+              <i class="fas fa-user-plus me-1"></i>
+              Inscrits total
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Overview -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <div class="status-card">
+          <div class="status-header">
+            <h6><i class="fas fa-shopping-cart me-2"></i>État des Commandes</h6>
+          </div>
+          <div class="status-list">
+            <div class="status-item">
+              <span class="status-dot status-warning"></span>
+              <span class="status-text">En préparation</span>
+              <span class="status-count">{{ commandesStatut.en_preparation }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot status-info"></span>
+              <span class="status-text">Prêtes</span>
+              <span class="status-count">{{ commandesStatut.prete }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot status-primary"></span>
+              <span class="status-text">En livraison</span>
+              <span class="status-count">{{ commandesStatut.en_livraison }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot status-success"></span>
+              <span class="status-text">Livrées</span>
+              <span class="status-count">{{ commandesStatut.livree }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot status-danger"></span>
+              <span class="status-text">Annulées</span>
+              <span class="status-count">{{ commandesStatut.annulee }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="status-card">
+          <div class="status-header">
+            <h6><i class="fas fa-credit-card me-2"></i>État des Paiements</h6>
+          </div>
+          <div class="status-list">
+            <div class="status-item">
+              <span class="status-dot status-success"></span>
+              <span class="status-text">Payés</span>
+              <span class="status-count">{{ paiementsStatut.payee }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot status-warning"></span>
+              <span class="status-text">En attente</span>
+              <span class="status-count">{{ paiementsStatut.en_attente }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot status-danger"></span>
+              <span class="status-text">Échoués</span>
+              <span class="status-count">{{ paiementsStatut.echoue }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="status-card">
+          <div class="status-header">
+            <h6><i class="fas fa-truck me-2"></i>État des Livraisons</h6>
+          </div>
+          <div class="status-list">
+            <div class="status-item">
+              <span class="status-dot status-success"></span>
+              <span class="status-text">Livrées</span>
+              <span class="status-count">{{ livraisonsStatut.livree }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot status-primary"></span>
+              <span class="status-text">En cours</span>
+              <span class="status-count">{{ livraisonsStatut.en_cours }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot status-warning"></span>
+              <span class="status-text">En attente</span>
+              <span class="status-count">{{ livraisonsStatut.en_attente }}</span>
+            </div>
+            <div class="status-item">
+              <span class="status-dot status-danger"></span>
+              <span class="status-text">Échouées</span>
+              <span class="status-count">{{ livraisonsStatut.echouee }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders Table -->
+    <div class="recent-orders">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">
+            <i class="fas fa-clock me-2"></i>
+            Commandes récentes
+          </h6>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Client</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  <th>Montant</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let commande of commandesRecentes">
+                  <td><strong>#{{ commande.id }}</strong></td>
+                  <td>{{ commande.user?.nomComplet || 'N/A' }}</td>
+                  <td>{{ formatDate(commande.created_at) }}</td>
+                  <td>
+                    <span [class]="'badge ' + getStatusBadgeClass(commande.statut)">
+                      {{ getStatusLabel(commande.statut) }}
+                    </span>
+                  </td>
+                  <td><strong>{{ formatCurrency(commande.montant_total) }}</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- EMPLOYE DASHBOARD -->
+  <ng-container *ngIf="currentUser.role === 'EMPLOYE'">
+    
+    <!-- Task-focused metrics -->
+    <div class="row g-3 mb-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="stats-card stats-card-warning">
+          <div class="stats-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ commandesStatut.en_preparation }}</h4>
+            <p class="stats-label">À préparer</p>
+            <small class="stats-sublabel">Commandes en attente</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stats-card stats-card-info">
+          <div class="stats-icon">
+            <i class="fas fa-check"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ commandesStatut.prete }}</h4>
+            <p class="stats-label">Prêtes</p>
+            <small class="stats-sublabel">Prêtes à livrer</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stats-card stats-card-primary">
+          <div class="stats-icon">
+            <i class="fas fa-truck"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ commandesStatut.en_livraison }}</h4>
+            <p class="stats-label">En livraison</p>
+            <small class="stats-sublabel">En cours de transport</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="stats-card stats-card-success">
+          <div class="stats-icon">
+            <i class="fas fa-calendar-day"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ commandesDuJour }}</h4>
+            <p class="stats-label">Aujourd'hui</p>
+            <small class="stats-sublabel">Commandes du jour</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="task-overview">
+      <div class="card">
+        <div class="card-header">
+          <h6 class="mb-0">
+            <i class="fas fa-tasks me-2"></i>
+            Commandes à traiter en priorité
+          </h6>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Commande</th>
+                  <th>Client</th>
+                  <th>Heure</th>
+                  <th>Statut</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let commande of commandesRecentes">
+                  <td><strong>#{{ commande.id }}</strong></td>
+                  <td>{{ commande.user?.nomComplet || 'N/A' }}</td>
+                  <td>{{ formatDate(commande.created_at) }}</td>
+                  <td>
+                    <span [class]="'badge ' + getStatusBadgeClass(commande.statut)">
+                      {{ getStatusLabel(commande.statut) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-primary" 
+                              routerLink="/employe/commande" 
+                              title="Voir détails">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- CLIENT DASHBOARD -->
+  <ng-container *ngIf="currentUser.role === 'CLIENT'">
+    
+    <!-- Client Stats -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="stats-card stats-card-primary">
+          <div class="stats-icon">
+            <i class="fas fa-shopping-bag"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ totalCommandes }}</h4>
+            <p class="stats-label">Mes Commandes</p>
+            <small class="stats-sublabel">Total à ce jour</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="stats-card stats-card-success">
+          <div class="stats-icon">
+            <i class="fas fa-euro-sign"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ formatCurrency(montantTotalCommandes) }}</h4>
+            <p class="stats-label">Total dépensé</p>
+            <small class="stats-sublabel">Toutes commandes</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="stats-card stats-card-info">
+          <div class="stats-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="stats-content">
+            <h4 class="stats-number">{{ commandesStatut.livree }}</h4>
+            <p class="stats-label">Livrées</p>
+            <small class="stats-sublabel">Commandes terminées</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Status Overview -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="status-card">
+          <div class="status-header">
+            <h6><i class="fas fa-list me-2"></i>État de mes commandes</h6>
+          </div>
+          <div class="status-list">
+            <div class="status-item" *ngIf="commandesStatut.en_preparation > 0">
+              <span class="status-dot status-warning"></span>
+              <span class="status-text">En préparation</span>
+              <span class="status-count">{{ commandesStatut.en_preparation }}</span>
+            </div>
+            <div class="status-item" *ngIf="commandesStatut.prete > 0">
+              <span class="status-dot status-info"></span>
+              <span class="status-text">Prêtes</span>
+              <span class="status-count">{{ commandesStatut.prete }}</span>
+            </div>
+            <div class="status-item" *ngIf="commandesStatut.en_livraison > 0">
+              <span class="status-dot status-primary"></span>
+              <span class="status-text">En livraison</span>
+              <span class="status-count">{{ commandesStatut.en_livraison }}</span>
+            </div>
+            <div class="status-item" *ngIf="commandesStatut.livree > 0">
+              <span class="status-dot status-success"></span>
+              <span class="status-text">Livrées</span>
+              <span class="status-count">{{ commandesStatut.livree }}</span>
+            </div>
+            <div class="status-item" *ngIf="commandesStatut.annulee > 0">
+              <span class="status-dot status-danger"></span>
+              <span class="status-text">Annulées</span>
+              <span class="status-count">{{ commandesStatut.annulee }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="action-shortcuts">
+          <div class="card">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <i class="fas fa-bolt me-2"></i>
+                Actions rapides
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <button class="btn btn-primary" routerLink="/client/catalogue">
+                  <i class="fas fa-shopping-cart me-2"></i>
+                  Commander maintenant
+                </button>
+                <button class="btn btn-outline-secondary" routerLink="/client/mes-commandes">
+                  <i class="fas fa-history me-2"></i>
+                  Voir toutes mes commandes
+                </button>
+                <button class="btn btn-outline-info" routerLink="/client/chats">
+                  <i class="fas fa-comments me-2"></i>
+                  Contacter le support
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders for Client -->
+    <div class="recent-orders">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">
+            <i class="fas fa-clock me-2"></i>
+            Mes commandes récentes
+          </h6>
+          <button class="btn btn-sm btn-outline-primary" routerLink="/client/mes-commandes">
+            Voir tout
+          </button>
+        </div>
+        <div class="card-body p-0">
+          <div class="table-responsive" *ngIf="commandesRecentes.length > 0; else noOrders">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th>Commande</th>
+                  <th>Date</th>
+                  <th>Statut</th>
+                  <th>Montant</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let commande of commandesRecentes">
+                  <td><strong>#{{ commande.id }}</strong></td>
+                  <td>{{ formatDate(commande.created_at) }}</td>
+                  <td>
+                    <span [class]="'badge ' + getStatusBadgeClass(commande.statut)">
+                      {{ getStatusLabel(commande.statut) }}
+                    </span>
+                  </td>
+                  <td><strong>{{ formatCurrency(commande.montant_total) }}</strong></td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-primary" 
+                              routerLink="/client/mes-commandes" 
+                              title="Voir détails">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="btn btn-outline-success" 
+                              *ngIf="commande.statut === 'livrée'"
+                              title="Recommander">
+                        <i class="fas fa-redo"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ng-template #noOrders>
+            <div class="text-center py-5">
+              <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+              <h6 class="text-muted">Aucune commande pour le moment</h6>
+              <p class="text-muted small mb-3">Découvrez nos délicieux produits</p>
+              <button class="btn btn-primary" routerLink="/client/catalogue">
+                <i class="fas fa-shopping-cart me-2"></i>
+                Commencer vos achats
+              </button>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>
+
+<!-- CSS Styles -->
+<style>
+
+</style>

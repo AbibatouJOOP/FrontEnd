@@ -11,4 +11,13 @@ export class Produit {
     categorie_id!: number;
     categorie?: Categorie;
     
+    promotions?: Promotion[];
+
+    // Nouvelles propriétés pour la gestion des stocks
+  stock_status?: 'critique' | 'faible' | 'moyen' | 'bon';
+  stock_alert_message?: string;
+  need_restocking?: boolean;
 }
+
+  
+  

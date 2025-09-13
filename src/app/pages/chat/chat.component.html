@@ -1,1 +1,525 @@
-<p>chat works!</p>
+<div class="chat-container">
+  <div class="chat-layout">
+    
+    <!-- Sidebar avec liste des conversations (pour employés/admin uniquement) -->
+    <div class="chat-sidebar" *ngIf="currentUser?.role !== 'CLIENT'">
+      <div class="sidebar-header">
+        <h4>Conversations</h4>
+        <span class="unread-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </div>
+      
+      <div class="conversations-list">
+        <div *ngFor="let conversation of conversations; trackBy: trackByConversationId"
+             class="conversation-item"
+             [class.active]="selectedClientId === conversation.client_id"
+             (click)="selectConversation(conversation.client_id)">
+          
+          <div class="conversation-avatar">
+            {{ getInitials(conversation.client.nomComplet) }}
+          </div>
+          
+          <div class="conversation-info">
+            <div class="client-name">{{ conversation.client.nomComplet }}</div>
+            <div class="message-count">{{ conversation.message_count }} message(s)</div>
+            <div class="last-message-date">{{ formatDate(conversation.last_message_date) }}</div>
+          </div>
+        </div>
+        
+        <div *ngIf="conversations.length === 0" class="empty-conversations">
+          Aucune conversation active
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone de chat principale -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <div *ngIf="selectedClientId" class="conversation-header">
+          <h3 *ngIf="currentUser?.role === 'CLIENT'">Support Client</h3>
+          <h3 *ngIf="currentUser?.role !== 'CLIENT'">
+            Conversation avec 
+            {{ getClientName(selectedClientId) }}
+          </h3>
+          
+          <div class="user-info">
+            Connecté en tant que : {{ currentUser?.nomComplet }} ({{ currentUser?.role }})
+          </div>
+          
+          <!-- Bouton d'assignation pour les employés -->
+          <button *ngIf="currentUser?.role === 'EMPLOYE' && selectedClientId && !selectedEmployeId"
+                  (click)="assignToMe(selectedClientId)"
+                  class="assign-btn">
+            M'assigner cette conversation
+          </button>
+        </div>
+        
+        <div *ngIf="!selectedClientId && currentUser?.role !== 'CLIENT'" class="no-conversation">
+          Sélectionnez une conversation pour commencer
+        </div>
+      </div>
+
+      <!-- Zone d'erreur -->
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
+
+      <!-- Indicateur de chargement -->
+      <div *ngIf="isLoading" class="loading">
+        Chargement...
+      </div>
+
+      <!-- Messages -->
+      <div class="chat-body" #chatBody *ngIf="selectedClientId">
+        <div *ngFor="let msg of currentMessages; trackBy: trackByMessageId" 
+             [ngClass]="{
+               'message-client': msg.emeteur_type === 'CLIENT',
+               'message-employe': msg.emeteur_type === 'EMPLOYE',
+               'message-admin': msg.emeteur_type === 'ADMIN',
+               'message-own': isOwnMessage(msg),
+               'message-unread': !msg.est_lu && !isOwnMessage(msg)
+             }"
+             class="message-wrapper">
+          
+          <div class="message-content">
+            <div class="message-avatar" 
+                 [ngClass]="{
+                   'avatar-client': msg.emeteur_type === 'CLIENT',
+                   'avatar-employe': msg.emeteur_type === 'EMPLOYE',
+                   'avatar-admin': msg.emeteur_type === 'ADMIN'
+                 }">
+              {{ getSenderInitials(msg) }}
+            </div>
+            
+            <div class="message-body">
+              <div class="message-sender">{{ getMessageSenderName(msg) }}</div>
+              <p class="message-text">{{ msg.message }}</p>
+              <div class="message-meta">
+                <small class="timestamp" *ngIf="msg.created_at">
+                  {{ formatDate(msg.created_at) }}
+                </small>
+                <span *ngIf="!msg.est_lu && isOwnMessage(msg)" class="status-indicator unread">
+                  ✓
+                </span>
+                <span *ngIf="msg.est_lu && isOwnMessage(msg)" class="status-indicator read">
+                  ✓✓
+                </span>
+              </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="message-actions">
+              <button *ngIf="canDeleteMessage(msg) && msg.id" 
+                      (click)="deleteMessage(msg.id)" 
+                      class="delete-btn"
+                      title="Supprimer">
+                🗑️
+              </button>
+              
+              <button *ngIf="!msg.est_lu && !isOwnMessage(msg) && msg.id"
+                      (click)="markAsRead(msg.id)"
+                      class="mark-read-btn"
+                      title="Marquer comme lu">
+                👁️
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message si aucun message -->
+        <div *ngIf="currentMessages.length === 0 && !isLoading" class="empty-messages">
+          <div *ngIf="currentUser?.role === 'CLIENT'">
+            Commencez une conversation avec notre équipe support
+          </div>
+          <div *ngIf="currentUser?.role !== 'CLIENT'">
+            Aucun message dans cette conversation
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone de saisie -->
+      <div class="chat-footer" *ngIf="selectedClientId">
+        <div class="input-group">
+          <input 
+            type="text" 
+            [(ngModel)]="newMessage" 
+            (keydown.enter)="sendMessage()"
+            placeholder="Écrire un message..."
+            [disabled]="isLoading"
+            class="message-input">
+          <button 
+            (click)="sendMessage()" 
+            [disabled]="!newMessage.trim() || isLoading"
+            class="send-btn">
+            {{ isLoading ? '...' : 'Envoyer' }}
+          </button>
+        </div>
+        
+        <!-- Bouton pour marquer toute la conversation comme lue -->
+        <button (click)="markConversationAsRead()" 
+                class="mark-all-read-btn"
+                title="Marquer toute la conversation comme lue">
+          Tout marquer comme lu
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.chat-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.chat-sidebar {
+  width: 300px;
+  border-right: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+}
+
+.unread-badge {
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.conversations-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.conversation-item {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+  display: flex;
+  gap: 0.75rem;
+  transition: background-color 0.2s;
+}
+
+.conversation-item:hover {
+  background: #e9ecef;
+}
+
+.conversation-item.active {
+  background: #007bff;
+  color: white;
+}
+
+.conversation-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #6c757d;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.875rem;
+}
+
+.conversation-info {
+  flex: 1;
+}
+
+.client-name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.message-count {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.last-message-date {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin-top: 0.25rem;
+}
+
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  padding: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  background: white;
+}
+
+.conversation-header h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.user-info {
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.assign-btn {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.no-conversation {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.error-message {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+}
+
+.chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f8f9fa;
+}
+
+.message-wrapper {
+  margin-bottom: 1rem;
+}
+
+.message-content {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.message-own .message-content {
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.avatar-client {
+  background: #007bff;
+  color: white;
+}
+
+.avatar-employe {
+  background: #28a745;
+  color: white;
+}
+
+.avatar-admin {
+  background: #dc3545;
+  color: white;
+}
+
+.message-body {
+  flex: 1;
+  max-width: 70%;
+}
+
+.message-own .message-body {
+  text-align: right;
+}
+
+.message-sender {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #6c757d;
+}
+
+.message-text {
+  background: white;
+  padding: 0.75rem 1rem;
+  border-radius: 1rem;
+  margin: 0 0 0.25rem 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.message-own .message-text {
+  background: #007bff;
+  color: white;
+}
+
+.message-admin .message-text {
+  background: #dc3545;
+  color: white;
+}
+
+.message-unread .message-text {
+  border-left: 3px solid #ffc107;
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #6c757d;
+}
+
+.message-own .message-meta {
+  justify-content: flex-end;
+}
+
+.status-indicator {
+  font-size: 0.75rem;
+}
+
+.status-indicator.read {
+  color: #28a745;
+}
+
+.status-indicator.unread {
+  color: #6c757d;
+}
+
+.message-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.delete-btn, .mark-read-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.delete-btn:hover, .mark-read-btn:hover {
+  opacity: 1;
+  background: rgba(0,0,0,0.1);
+}
+
+.empty-messages, .empty-conversations {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 2rem;
+}
+
+.chat-footer {
+  padding: 1rem;
+  border-top: 1px solid #e0e0e0;
+  background: white;
+}
+
+.input-group {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.message-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 1.5rem;
+  outline: none;
+}
+
+.message-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.send-btn {
+  padding: 0.75rem 1.5rem;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.send-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.mark-all-read-btn {
+  padding: 0.5rem 1rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.mark-all-read-btn:hover {
+  background: #5a6268;
+}
+
+@media (max-width: 768px) {
+  .chat-sidebar {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    height: 100%;
+  }
+  
+  .message-body {
+    max-width: 85%;
+  }
+}
+</style>

@@ -1,1 +1,79 @@
-<p>livraison works!</p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion des Livraisons</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  
+</head>
+<body>
+  <div class="livraisons-container">
+  <div class="livraisons-header">
+    <h1><i class="fas fa-truck"></i> Gestion des Livraisons</h1>
+    <p>Suivez l'état des livraisons de vos commandes</p>
+  </div>
+
+  <!-- Filtres -->
+  <!--<div class="controls-section">
+    <div class="filters">
+      <div class="filter-group">
+        <label for="searchLivraison">Rechercher</label>
+        <input type="text" id="searchLivraison" [(ngModel)]="searchTerm" (ngModelChange)="FiltrerLivraisons()" placeholder="ID commande, adresse...">
+      </div>
+      <div class="filter-group">
+        <label for="filterLivraison">Statut</label>
+        <select id="filterLivraison" [(ngModel)]="filterStatut" (ngModelChange)="FiltrerLivraisons()">
+          <option value="">Tous</option>
+          <option value="livree">Livrée</option>
+          <option value="non_livree">Non livrée</option>
+        </select>
+      </div>
+    </div>
+  </div>-->
+
+  <!-- Tableau -->
+  <div class="livraisons-table-container">
+    <table class="livraisons-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Commande</th>
+          <th>Adresse</th>
+          <th>Date livraison</th>
+          <th>Frais livraison</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let livraison of livraisons">
+          <td>{{ livraison.id }}</td>
+          <td>{{ livraison.commande_id }}</td>
+          <td>{{ livraison.adresse_livraison }}</td>
+          <td>{{ livraison.date_livraison | date:'shortDate' }}</td>
+          <td>{{ livraison.frais_livraison | currency:'XOF' }}</td>
+          <td>
+            <span class="statut-badge"
+              [ngClass]="{
+                'statut-livree': livraison.statut === 'livrée',
+                'statut-non-livree': livraison.statut === 'non_livrée'
+              }">
+              {{ livraison.statut | titlecase }}
+            </span>
+          </td>
+          <td class="actions-cell">
+            <button class="action-btn btn-view" title="Voir la livraison">
+              <i class="fas fa-eye"></i>
+            </button>
+          </td>
+        </tr>
+        <!--<tr *ngIf="livraisonsFiltrees.length === 0">
+          <td colspan="7" class="no-result">Aucune livraison trouvée</td>
+        </tr>-->
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

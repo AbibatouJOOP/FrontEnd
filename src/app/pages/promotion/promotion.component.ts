@@ -52,6 +52,7 @@ promotions: Promotion[] = [];
 
   ngOnInit() {
     this.getUserRole();
+    console.log(this.userRole);
     this.loadPromotions();
     this.loadProduits();
   }

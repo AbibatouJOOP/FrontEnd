@@ -1,0 +1,34 @@
+                <div *ngIf="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+                </div>
+                <form action="" [formGroup]="userForm" (ngSubmit)="onSubmit()">
+                <label for="">Email</label>
+                <input type="mailto" class="form-control" formControlName="email">
+                <div *ngIf=" submitted && f2['email'].errors">
+                <span class="text-danger" *ngIf="f2['email'].errors['required']">email est oblogatoire</span>
+
+                </div>
+                
+                    <label for="">Nom Complet</label>
+                        <input type="text" class="form-control" formControlName="nomComplet">
+                        <div *ngIf="submitted && f2['nomComplet'].errors">
+                <span class="text-danger" *ngIf="f2['nomComplet'].errors['required']">nom est oblogatoire</span>
+                </div>
+                <label for="">Password</label>
+                        <input type="text" class="form-control" formControlName="password">
+                        <div *ngIf="submitted && f2['password'].errors">
+                <span class="text-danger" *ngIf="f2['password'].errors['required']">password est oblogatoire</span>
+                </div>
+                 
+                    <label for="role">Rôle :</label>
+                    <select id="role" class="form-control" formControlName="role" required>
+                    <option value="">-- Sélectionner un rôle --</option>
+                    <option value="ADMIN">Admin</option>
+                    <option value="EMPLOYE">EMPLOYE</option>
+                    <option value="CLIENT">CLIENT</option>
+                    </select>
+                <div *ngIf="submitted && f2['role'].errors">
+                <span class="text-danger" *ngIf="f2['role'].errors['required']">role est oblogatoire</span>
+                </div>
+                        <button class="btn btn-primary" type="submit">{{ this.id ? "update" : "Save"}}</button>         
+                </form>

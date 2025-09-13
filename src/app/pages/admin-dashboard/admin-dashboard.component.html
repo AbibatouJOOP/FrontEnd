@@ -1,13 +1,20 @@
 <!-- admin-dashboard.component.html -->
+ 
+<div class="admin-layout">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container-fluid">
-    <a class="navbar-brand" routerLink="/admin">Admin Dashboard</a>
+    <a class="navbar-brand" routerLink="/admin/acceuil"><h2>Boulangerie Artisanale</h2></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarAdmin">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarAdmin" *ngIf="isAdmin()">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="utilisateur" routerLinkActive="active">
+            <i class="bi bi-tags me-2"></i>Users
+          </a>
+        </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="categorie" routerLinkActive="active">
             <i class="bi bi-tags me-2"></i>Catégories
@@ -19,13 +26,28 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="commande" routerLinkActive="active">
+          <a class="nav-link" routerLink="commandes" routerLinkActive="active">
             <i class="bi bi-box me-2"></i>Commandes
           </a>
         </li>
         <li class="nav-item">
           <a class="nav-link" routerLink="promotion" routerLinkActive="active">
             <i class="bi bi-box me-2"></i>Promotion
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="paiements" routerLinkActive="active">
+            <i class="bi bi-box me-2"></i>Paiements
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="livraison" routerLinkActive="active">
+            <i class="bi bi-box me-2"></i>Livraison
+          </a>
+        </li>
+         <li class="nav-item">
+          <a class="nav-link" routerLink="chats" routerLinkActive="active">
+            <i class="bi bi-box me-2"></i>chats
           </a>
         </li>
       </ul>
@@ -39,7 +61,8 @@
     </div>
   </div>
 </nav>
-
+</div>
 <div class="container mt-4">
   <router-outlet></router-outlet>
 </div>
+

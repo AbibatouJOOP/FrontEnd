@@ -4,6 +4,7 @@ import { Router, RouterLink, RouterModule } from '@angular/router';
 import { Produit } from '../../models/produit';
 import { ProduitService } from '../../services/produit.service';
 import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-produit',
@@ -12,21 +13,33 @@ import { AuthService } from '../../services/auth.service';
     CommonModule,
     RouterLink,
     RouterModule,
+    FormsModule
     
   ],
   templateUrl: './produit.component.html',
   styleUrl: './produit.component.css'
 })
 export class ProduitComponent {
- produits: Produit[] = [];
+produits: Produit[] = [];
   isLoading = true;
   error: string | null = null;
   currentUser: any;
 
+  Math = Math;
+  
+  // Nouveaux états pour la gestion des stocks
+  showRestockModal = false;
+  selectedProduit: Produit | null = null;
+  restockQuantity = 0;
+  isRestocking = false;
+  stockStatistics: any = null;
+  showStockFilter = false;
+  stockFilter = 'tous'; // tous, critique, faible, moyen, bon
+
   constructor(
     private produitService: ProduitService,
     private authService: AuthService,
-    public router: Router // CORRECTION: Rendre router public pour le template
+    public router: Router
   ) {}
 
   ngOnInit(): void {
@@ -37,6 +50,9 @@ export class ProduitComponent {
         console.log('Utilisateur connecté:', user);
         console.log('Rôle utilisateur:', user.role);
         this.getAll();
+        if (this.canManageProducts()) {
+          this.loadStockStatistics();
+        }
       } else if (this.authService.isAuthenticated()) {
         // L'utilisateur est authentifié mais pas encore chargé, attendre
         this.authService.waitForUserLoaded().subscribe({
@@ -44,6 +60,9 @@ export class ProduitComponent {
             this.currentUser = loadedUser;
             if (loadedUser) {
               this.getAll();
+              if (this.canManageProducts()) {
+                this.loadStockStatistics();
+              }
             }
           },
           error: (err) => {
@@ -75,10 +94,21 @@ export class ProduitComponent {
           this.error = `Accès refusé. Votre rôle (${this.currentUser?.role}) ne permet pas d'accéder aux produits.`;
         } else if (error.status === 401) {
           this.error = 'Session expirée. Veuillez vous reconnecter.';
-          // Pas besoin de naviguer ici, le bouton le fera
         } else {
           this.error = 'Erreur lors du chargement des produits.';
         }
+      }
+    });
+  }
+
+  loadStockStatistics(): void {
+    this.produitService.getStockStatistics().subscribe({
+      next: (stats) => {
+        this.stockStatistics = stats;
+        console.log('Statistiques de stock:', stats);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des statistiques:', error);
       }
     });
   }
@@ -94,6 +124,7 @@ export class ProduitComponent {
         next: () => {
           console.log('Produit supprimé');
           this.getAll(); // Recharger la liste
+          this.loadStockStatistics(); // Recharger les stats
         },
         error: (error) => {
           console.error('Erreur lors de la suppression:', error);
@@ -101,6 +132,64 @@ export class ProduitComponent {
         }
       });
     }
+  }
+
+  // NOUVELLES MÉTHODES POUR LA GESTION DES STOCKS
+
+  openRestockModal(produit: Produit): void {
+    this.selectedProduit = produit;
+    this.restockQuantity = 10; // Valeur par défaut
+    this.showRestockModal = true;
+  }
+
+  closeRestockModal(): void {
+    this.showRestockModal = false;
+    this.selectedProduit = null;
+    this.restockQuantity = 0;
+    this.isRestocking = false;
+  }
+
+  confirmRestock(): void {
+    if (!this.selectedProduit || this.restockQuantity <= 0) {
+      alert('Veuillez saisir une quantité valide.');
+      return;
+    }
+
+    this.isRestocking = true;
+    this.produitService.restockProduit(this.selectedProduit.id, this.restockQuantity).subscribe({
+      next: (response) => {
+        console.log('Produit réapprovisionné:', response);
+        alert(response.message);
+        this.getAll(); // Recharger la liste
+        this.loadStockStatistics(); // Recharger les stats
+        this.closeRestockModal();
+      },
+      error: (error) => {
+        console.error('Erreur lors du réapprovisionnement:', error);
+        alert('Erreur lors du réapprovisionnement du produit.');
+        this.isRestocking = false;
+      }
+    });
+  }
+
+  getStockStatusClass(produit: any): string {
+    return this.produitService.getStockStatusClass(produit.stock_status);
+  }
+
+  getStockIcon(produit: any): string {
+    return this.produitService.getStockIcon(produit.stock_status);
+  }
+
+  // Filtrage par statut de stock
+  getFilteredProduits(): Produit[] {
+    if (this.stockFilter === 'tous') {
+      return this.produits;
+    }
+    return this.produits.filter(produit => (produit as any).stock_status === this.stockFilter);
+  }
+
+  getFilterButtonClass(filter: string): string {
+    return this.stockFilter === filter ? 'btn-primary' : 'btn-outline-primary';
   }
 
   // Méthodes pour vérifier les permissions
@@ -114,5 +203,20 @@ export class ProduitComponent {
 
   canAddProduct(): boolean {
     return this.authService.hasRole('ADMIN');
+  }
+
+  // Méthodes utilitaires pour l'affichage
+  getStockBadgeClass(stock: number): string {
+    if (stock <= 0) return 'badge bg-danger';
+    if (stock <= 5) return 'badge bg-warning';
+    if (stock <= 10) return 'badge bg-info';
+    return 'badge bg-success';
+  }
+
+  getStockText(stock: number): string {
+    if (stock <= 0) return 'Épuisé';
+    if (stock <= 5) return 'Faible';
+    if (stock <= 10) return 'Moyen';
+    return 'Bon';
   }
 }

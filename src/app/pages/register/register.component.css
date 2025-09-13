@@ -1,0 +1,42 @@
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+}
+
+.auth-header {
+  background: linear-gradient(135deg, #8B4513, #D2691E);
+}
+
+.custom-input {
+  background-color: #fffaf0;
+  border: 1px solid #e0c3a1;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.custom-input:focus {
+  border-color: #D2691E;
+  box-shadow: 0 0 6px rgba(210, 105, 30, 0.4);
+}
+
+.custom-btn {
+  background: linear-gradient(135deg, #8B4513, #D2691E);
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.custom-btn:hover {
+  background: linear-gradient(135deg, #D2691E, #8B4513);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #8B4513, #D2691E);
+  -webkit-background-clip: text; /* préfixe nécessaire pour WebKit */
+    background-clip: text; 
+  -webkit-text-fill-color: transparent;
+}
